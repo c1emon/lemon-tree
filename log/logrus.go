@@ -10,7 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var logger *logrus.Logger
+var logger = logrus.New()
 
 func GetLogger() *logrus.Logger {
 	return logger
@@ -49,7 +49,6 @@ func (s *costumeLogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 }
 
 func Init(level string) {
-	logger = logrus.New()
 	lv, err := logrus.ParseLevel(level)
 	if err != nil {
 		logger.Fatal(err)
@@ -57,12 +56,4 @@ func Init(level string) {
 	logger.SetFormatter(new(costumeLogFormatter))
 	logger.SetLevel(lv)
 	logger.Info(fmt.Sprintf("log level: %s", logrus.GetLevel().String()))
-}
-
-type LogBridge struct {
-}
-
-func (l *LogBridge) Write(p []byte) (n int, err error) {
-	logger.Info(string(p))
-	return len(p), nil
 }

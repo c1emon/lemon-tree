@@ -2,20 +2,24 @@ package log
 
 import (
 	"io"
+	"sync"
 
 	"encoding/json"
 	"github.com/labstack/gommon/log"
 	"github.com/sirupsen/logrus"
 )
 
+var el *echoLogrus
+var lock = &sync.Mutex{}
+
 // echoLogrus extend logrus.Logger
 type echoLogrus struct {
 	*logrus.Logger
 }
 
-var el *echoLogrus
-
 func GetEchoLogrusLogger() *echoLogrus {
+	lock.Lock()
+	defer lock.Unlock()
 	if el == nil {
 		el = &echoLogrus{GetLogger()}
 	}
