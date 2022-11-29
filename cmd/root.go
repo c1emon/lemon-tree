@@ -23,7 +23,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/c1emon/lemontree/logger"
+	"github.com/c1emon/lemontree/log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -46,7 +46,7 @@ to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		logger.Init(logLevel)
+		log.Init(logLevel)
 	},
 }
 

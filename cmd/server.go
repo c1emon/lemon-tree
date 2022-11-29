@@ -28,7 +28,7 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("server called")
 		e := router.EchoFactory()
-
+		//http.ResponseWriter
 		e.GET("/", func(c echo.Context) error {
 			e.Logger.Print("xxxxx")
 			return c.String(http.StatusOK, "Hello, World!")
