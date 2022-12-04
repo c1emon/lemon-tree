@@ -1,13 +1,12 @@
 package goauth
 
 import (
-	"errors"
 	"time"
 )
 
 type StateCache interface {
-	Get(string) (string, error)
-	Set(string, string, int64)
+	IsValid(string) bool
+	Save(string, string, int64)
 }
 
 type State struct {
@@ -53,15 +52,12 @@ func (c *InMemoryStateCache) timeoutChecker() {
 	}
 }
 
-func (c *InMemoryStateCache) Get(state string) (string, error) {
-	s, ok := c.cachedStates[state]
-	if !ok {
-		return "", errors.New("invalid state")
-	}
-	return s.ClientId, nil
+func (c *InMemoryStateCache) IsValid(state string) bool {
+	_, ok := c.cachedStates[state]
+	return ok
 }
 
-func (c *InMemoryStateCache) Set(state, clientId string, timeOut int64) {
+func (c *InMemoryStateCache) Save(state, clientId string, timeOut int64) {
 	c.cachedStates[state] = State{
 		ClientId:  clientId,
 		ExpiredAt: time.Now().Unix() + timeOut,
