@@ -23,7 +23,9 @@ func (Organization) Fields() []ent.Field {
 func (Organization) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("departments", Department.Type),
-		edge.To("staffs", Staff.Type)}
+		edge.To("staffs", Staff.Type),
+		edge.To("oauth_clients", OauthClient.Type),
+		edge.To("oauth_identity_providers", OauthIdentityProvider.Type)}
 }
 
 func (Organization) Mixin() []ent.Mixin {

@@ -40,3 +40,8 @@ func SingletonEchoFactory() *echo.Echo {
 
 	return e
 }
+
+func BuildRouter() error {
+
+	return nil
+}

@@ -17,7 +17,7 @@ func (Staff) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
 		field.Int("age").Optional(),
-		field.Enum("gender").Optional(),
+		field.Enum("gender").Values("male", "female", "unknown").Default("unknown"),
 	}
 }
 
