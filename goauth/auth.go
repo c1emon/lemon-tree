@@ -1,45 +1,26 @@
 package goauth
 
-type AbstractAuthHandler interface {
-	Authorize(state string) string
-	AccessToken(code string) string
-	UserInfo()
+type AuthHandler interface {
+	GetAuthorizeUri(string) string
+	ProcessCallback(string, map[string]string)
+	GetAccessToken() string
+	GetUserInfo()
 
 	Login() string
 	Revoke() string
 	Refresh() string
+
+	SetConfig(*AuthConfig)
+	GetConfig() *AuthConfig
 }
 
-type AuthRequest struct {
-	handler *AbstractAuthHandler
-}
-
-type AuthRequestBuilder struct {
-	request *AuthRequest
-}
-
-func NewAuthRequestBuilder() *AuthRequestBuilder {
-	return &AuthRequestBuilder{
-		request: &AuthRequest{},
-	}
-}
-
-func (arb *AuthRequestBuilder) Source(source string) *AuthRequestBuilder {
+func Source(source string) *AuthHandler {
+	var h *AuthHandler
 	switch source {
 	case "DingTalk":
-		arb.request.handler = nil
+		h = nil
 	default:
-		arb.request.handler = nil
+		h = nil
 	}
-	return arb
-}
-
-func (arb *AuthRequestBuilder) Config(config *AuthConfig) *AuthRequestBuilder {
-
-	return arb
-}
-
-func (arb *AuthRequestBuilder) Build() *AuthRequest {
-
-	return arb.request
+	return h
 }

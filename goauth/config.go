@@ -4,7 +4,9 @@ type AuthConfig struct {
 	ClientId     string
 	ClientSecret string
 	RedirectUri  string
-	StateCache   StateCache
+	Scope        []string
+	CustomValues map[string]any
+	AuthZParams  map[string]any
 }
 
 type AuthConfigBuilder struct {
@@ -13,12 +15,19 @@ type AuthConfigBuilder struct {
 
 func NewAuthConfigBuilder() *AuthConfigBuilder {
 	return &AuthConfigBuilder{
-		config: &AuthConfig{},
+		config: &AuthConfig{
+			CustomValues: make(map[string]any),
+		},
 	}
 }
 
-func (acb *AuthConfigBuilder) ClientId(id string) *AuthConfigBuilder {
+func (acb *AuthConfigBuilder) SetClientId(id string) *AuthConfigBuilder {
 	acb.config.ClientId = id
+	return acb
+}
+
+func (acb *AuthConfigBuilder) SetScope(s []string) *AuthConfigBuilder {
+	acb.config.Scope = s
 	return acb
 }
 
@@ -32,8 +41,8 @@ func (acb *AuthConfigBuilder) SetRedirectUri(uri string) *AuthConfigBuilder {
 	return acb
 }
 
-func (acb *AuthConfigBuilder) SetStateCache(cache StateCache) *AuthConfigBuilder {
-	acb.config.StateCache = cache
+func (acb *AuthConfigBuilder) AddValue(k string, v any) *AuthConfigBuilder {
+	acb.config.CustomValues[k] = v
 	return acb
 }
 
