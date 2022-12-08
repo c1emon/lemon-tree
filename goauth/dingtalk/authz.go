@@ -59,25 +59,27 @@ func (b *AuthZBuilder) Build() string {
 	authZUri, _ := url.Parse(AuthZBaseUrl)
 	query := authZUri.Query()
 
-	scope := strings.Join(bc.Scope, " ")
-
 	query.Set("redirect_uri", bc.RedirectUri)
 	query.Set("response_type", "code")
 	query.Set("client_id", bc.ClientId)
 	query.Set("client_secret", bc.ClientSecret)
-	query.Set("scope", scope)
 	query.Set("state", b.state)
 	query.Set("prompt", "consent")
 
 	ap := bc.AuthZParams
-	if strings.Contains(scope, "corpid") {
-		if v, ok := ap["org_type"]; ok {
-			query.Set("org_type", v.(string))
-		}
-		if v, ok := ap["corpId"]; ok {
-			query.Set("corpId", strings.Join(v.([]string), " "))
+	if bc.Scope != nil && len(bc.Scope) > 0 {
+		scope := strings.Join(bc.Scope, " ")
+		query.Set("scope", scope)
+		if strings.Contains(scope, "corpid") {
+			if v, ok := ap["org_type"]; ok {
+				query.Set("org_type", v.(string))
+			}
+			if v, ok := ap["corpId"]; ok {
+				query.Set("corpId", strings.Join(v.([]string), " "))
+			}
 		}
 	}
+
 	if v, ok := ap["exclusiveLogin"]; ok && v.(bool) {
 		query.Set("exclusiveLogin", "true")
 		if v, ok := ap["exclusiveCorpId"]; ok {

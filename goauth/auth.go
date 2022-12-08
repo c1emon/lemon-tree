@@ -1,26 +1,19 @@
 package goauth
 
+import "github.com/c1emon/lemontree/goauth/dingtalk"
+
 type AuthHandler interface {
-	GetAuthorizeUri(string) string
-	ProcessCallback(string, map[string]string)
-	GetAccessToken() string
-	GetUserInfo()
-
-	Login() string
-	Revoke() string
-	Refresh() string
-
-	SetConfig(*AuthConfig)
-	GetConfig() *AuthConfig
+	GetAccessToken(string) string
+	GetUserInfo(string) string
 }
 
-func Source(source string) *AuthHandler {
-	var h *AuthHandler
+func GetHandler(source string, config *AuthConfig) *AuthHandler {
+	var h AuthHandler
 	switch source {
 	case "DingTalk":
-		h = nil
+		h = dingtalk.NewDingTalkAuthHandler(config)
 	default:
 		h = nil
 	}
-	return h
+	return &h
 }

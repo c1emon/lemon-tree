@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-type AuthHandler struct {
+type Handler struct {
 	config *goauth.AuthConfig
 }
 
@@ -32,8 +32,8 @@ func CallbackPreHandler(r *http.Request) (*CallbackParam, error) {
 	}, nil
 }
 
-func NewDingTalkAuthHandler(config *goauth.AuthConfig) *AuthHandler {
-	return &AuthHandler{
+func NewDingTalkAuthHandler(config *goauth.AuthConfig) *Handler {
+	return &Handler{
 		config: config,
 	}
 }
@@ -41,7 +41,7 @@ func NewDingTalkAuthHandler(config *goauth.AuthConfig) *AuthHandler {
 var AccessTokenUri = "https://api.dingtalk.com/v1.0/oauth2/userAccessToken"
 var UserInfoUri = "https://api.dingtalk.com/v1.0/contact/users/me"
 
-func (d AuthHandler) GetAccessToken(code string) string {
+func (d *Handler) GetAccessToken(code string) string {
 
 	v, _ := json.Marshal(struct {
 		ClientID     string `json:"clientId"`
@@ -93,7 +93,7 @@ func (d AuthHandler) GetAccessToken(code string) string {
 	return r.AccessToken
 }
 
-func (d AuthHandler) GetUserInfo(token string) string {
+func (d *Handler) GetUserInfo(token string) string {
 	req, err := http.NewRequest("GET", UserInfoUri, nil)
 	if err != nil {
 
