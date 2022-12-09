@@ -7,11 +7,11 @@ type AuthHandler interface {
 	GetUserInfo(string) string
 }
 
-func GetHandler(source string, config *AuthConfig) *AuthHandler {
+func GetHandler(source string, config *OauthBasicConfig) *AuthHandler {
 	var h AuthHandler
 	switch source {
 	case "DingTalk":
-		h = dingtalk.NewDingTalkAuthHandler(config)
+		h = dingtalk.NewDingTalkOauthHandler(config)
 	default:
 		h = nil
 	}

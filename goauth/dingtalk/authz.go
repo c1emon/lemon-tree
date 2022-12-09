@@ -9,51 +9,51 @@ import (
 
 var AuthZBaseUrl = "https://login.dingtalk.com/oauth2/auth"
 
-type AuthZBuilder struct {
-	config *goauth.AuthConfig
+type OauthAuthZUriBuilder struct {
+	config *goauth.OauthBasicConfig
 	state  string
 }
 
-func NewAuthZBuilder() *AuthZBuilder {
+func NewOauthAuthZUriBuilder() *OauthAuthZUriBuilder {
 	id, _ := uuid.NewUUID()
-	return &AuthZBuilder{
-		config: &goauth.AuthConfig{},
+	return &OauthAuthZUriBuilder{
+		config: &goauth.OauthBasicConfig{},
 		state:  id.String(),
 	}
 }
 
-func (b *AuthZBuilder) WithConfig(c *goauth.AuthConfig) *AuthZBuilder {
+func (b *OauthAuthZUriBuilder) WithConfig(c *goauth.OauthBasicConfig) *OauthAuthZUriBuilder {
 	b.config = c
 	return b
 }
 
-func (b *AuthZBuilder) SetOrgType(t string) *AuthZBuilder {
+func (b *OauthAuthZUriBuilder) SetOrgType(t string) *OauthAuthZUriBuilder {
 	b.config.AuthZParams["org_type"] = t
 	return b
 }
 
-func (b *AuthZBuilder) SetCropIds(ids []string) *AuthZBuilder {
+func (b *OauthAuthZUriBuilder) SetCropIds(ids []string) *OauthAuthZUriBuilder {
 	b.config.AuthZParams["corpId"] = ids
 	return b
 }
 
-func (b *AuthZBuilder) IsExclusiveLogin(i bool) *AuthZBuilder {
+func (b *OauthAuthZUriBuilder) IsExclusiveLogin(i bool) *OauthAuthZUriBuilder {
 	b.config.AuthZParams["exclusiveLogin"] = i
 
 	return b
 }
 
-func (b *AuthZBuilder) SetExclusiveCorpId(id string) *AuthZBuilder {
+func (b *OauthAuthZUriBuilder) SetExclusiveCorpId(id string) *OauthAuthZUriBuilder {
 	b.config.AuthZParams["exclusiveCorpId"] = id
 	return b
 }
 
-func (b *AuthZBuilder) SetState(state string) *AuthZBuilder {
+func (b *OauthAuthZUriBuilder) SetState(state string) *OauthAuthZUriBuilder {
 	b.state = state
 	return b
 }
 
-func (b *AuthZBuilder) Build() string {
+func (b *OauthAuthZUriBuilder) Build() string {
 	bc := b.config
 
 	authZUri, _ := url.Parse(AuthZBaseUrl)
