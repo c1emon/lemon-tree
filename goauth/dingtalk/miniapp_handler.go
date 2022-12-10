@@ -14,9 +14,14 @@ type MiniAppHandler struct {
 	config *goauth.OauthBasicConfig
 }
 
-func (d *MiniAppHandler) GetAccessToken(code string) string {
+func NewDingTalkMiniAppHandler(config *goauth.OauthBasicConfig) *MiniAppHandler {
+
+	return &MiniAppHandler{config: config}
+}
+
+func (d *MiniAppHandler) GetAccessToken(code string) (string, error) {
 	// code of dingtalk mini app is authCode, which directly get and send by mini app(front end)
-	return code
+	return code, nil
 }
 
 var BackEndAccessTokenUri = "https://oapi.dingtalk.com/gettoken"
@@ -40,9 +45,8 @@ func getBackEndAccessToken(key, secret string) (string, error) {
 	}
 
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Printf("unable clsoe: %s", err)
+		if err := Body.Close(); err != nil {
+			fmt.Printf("failed close http body: %s", err)
 		}
 	}(resp.Body)
 
@@ -68,11 +72,11 @@ func getBackEndAccessToken(key, secret string) (string, error) {
 
 var BackEndUserInfoUri = "https://oapi.dingtalk.com/topapi/v2/user/getuserinfo"
 
-func (d *MiniAppHandler) GetUserInfo(token string) string {
+func (d *MiniAppHandler) GetUserInfo(token string) (*goauth.Identity, error) {
 
 	accessToken, err := getBackEndAccessToken(d.config.ClientId, d.config.ClientSecret)
 	if err != nil {
-
+		return nil, err
 	}
 
 	b, _ := json.Marshal(struct {
@@ -81,7 +85,7 @@ func (d *MiniAppHandler) GetUserInfo(token string) string {
 
 	req, err := http.NewRequest("POST", BackEndUserInfoUri, bytes.NewBuffer(b))
 	if err != nil {
-
+		return nil, err
 	}
 	req.URL.RawQuery = url.Values{
 		"access_token": {accessToken},
@@ -91,18 +95,18 @@ func (d *MiniAppHandler) GetUserInfo(token string) string {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-
+		return nil, err
 	}
 
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
+		if err := Body.Close(); err != nil {
+			fmt.Printf("failed close http body: %s", err)
 		}
 	}(resp.Body)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		return nil, err
 	}
 
 	r := struct {
@@ -120,8 +124,13 @@ func (d *MiniAppHandler) GetUserInfo(token string) string {
 	}{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		fmt.Println(string(body))
+		return nil, err
 	}
 
-	return r.Result.UnionId
+	return &goauth.Identity{
+		UserName:    r.Result.Name,
+		DisplayName: r.Result.Name,
+		Ids:         []string{r.Result.Userid},
+		UnionIds:    []string{r.Result.UnionId, r.Result.AssociatedUnionId},
+	}, nil
 }

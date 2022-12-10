@@ -41,7 +41,7 @@ func NewDingTalkOauthHandler(config *goauth.OauthBasicConfig) *OauthHandler {
 var AccessTokenUri = "https://api.dingtalk.com/v1.0/oauth2/userAccessToken"
 var UserInfoUri = "https://api.dingtalk.com/v1.0/contact/users/me"
 
-func (d *OauthHandler) GetAccessToken(code string) string {
+func (d *OauthHandler) GetAccessToken(code string) (string, error) {
 
 	v, _ := json.Marshal(struct {
 		ClientID     string `json:"clientId"`
@@ -58,25 +58,25 @@ func (d *OauthHandler) GetAccessToken(code string) string {
 
 	req, err := http.NewRequest("POST", AccessTokenUri, bytes.NewBuffer(v))
 	if err != nil {
-
+		return "", err
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-
+		return "", err
 	}
 
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
+		if err := Body.Close(); err != nil {
+			fmt.Printf("failed close http body: %s", err)
 		}
 	}(resp.Body)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		return "", err
 	}
 
 	r := struct {
@@ -87,16 +87,16 @@ func (d *OauthHandler) GetAccessToken(code string) string {
 	}{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		fmt.Println(string(body))
+		return "", err
 	}
 
-	return r.AccessToken
+	return r.AccessToken, nil
 }
 
-func (d *OauthHandler) GetUserInfo(token string) string {
+func (d *OauthHandler) GetUserInfo(token string) (*goauth.Identity, error) {
 	req, err := http.NewRequest("GET", UserInfoUri, nil)
 	if err != nil {
-
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -105,18 +105,18 @@ func (d *OauthHandler) GetUserInfo(token string) string {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-
+		return nil, err
 	}
 
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-
+		if err := Body.Close(); err != nil {
+			fmt.Printf("failed close http body: %s", err)
 		}
 	}(resp.Body)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		return nil, err
 	}
 
 	r := struct {
@@ -130,9 +130,16 @@ func (d *OauthHandler) GetUserInfo(token string) string {
 	}{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		fmt.Println(string(body))
+		return nil, err
 	}
-	fmt.Printf("%s", string(body))
 
-	return r.UnionID
+	return &goauth.Identity{
+		UserName:    r.Nick,
+		DisplayName: r.Nick,
+		Ids:         []string{r.OpenID},
+		UnionIds:    []string{r.UnionID},
+		Email:       r.Email,
+		Phone:       r.Mobile,
+		AvatarUrl:   r.AvatarURL,
+	}, nil
 }
