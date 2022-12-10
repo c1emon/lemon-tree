@@ -18,10 +18,11 @@ func (OauthClient) Fields() []ent.Field {
 		field.String("name"),
 		field.String("client_id").Unique().Immutable(),
 		field.String("client_secret"),
-		field.Strings("grant_type").Default("password"),
+		field.Enum("grant_type").Values("password", "token", "authorization_code"),
 		field.Strings("redirect_urls"),
 		field.Bool("enabled").Default(false),
 		field.Bool("internal").Default(false).Immutable(),
+		field.String("creator").Optional(),
 	}
 }
 
@@ -31,7 +32,6 @@ func (OauthClient) Edges() []ent.Edge {
 		edge.From("organization", Organization.Type).
 			Ref("oauth_clients").
 			Unique(),
-		edge.From("creator", Staff.Type).Immutable(),
 	}
 }
 

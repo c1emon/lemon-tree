@@ -23,8 +23,8 @@ var serverCmd = &cobra.Command{
 		config.SetConfig(port, dbDriverName, dbSourceName)
 		//client := dao.GetEntClient()
 		e := router.SingletonEchoFactory()
-		g := e.Group("/api/v1")
-		router.BuildLogin(g)
+		loginG := e.Group("/api/v1/login")
+		router.BuildLogin(loginG)
 		e.Start(fmt.Sprintf(":%d", port))
 	},
 }
