@@ -72,7 +72,7 @@ func getBackEndAccessToken(key, secret string) (string, error) {
 
 var BackEndUserInfoUri = "https://oapi.dingtalk.com/topapi/v2/user/getuserinfo"
 
-func (d *MiniAppHandler) GetUserInfo(token string) (*goauth.Identity, error) {
+func (d *MiniAppHandler) GetIdentity(token string) (*goauth.Identity, error) {
 
 	accessToken, err := getBackEndAccessToken(d.config.ClientId, d.config.ClientSecret)
 	if err != nil {

@@ -93,7 +93,7 @@ func (d *OauthHandler) GetAccessToken(code string) (string, error) {
 	return r.AccessToken, nil
 }
 
-func (d *OauthHandler) GetUserInfo(token string) (*goauth.Identity, error) {
+func (d *OauthHandler) GetIdentity(token string) (*goauth.Identity, error) {
 	req, err := http.NewRequest("GET", UserInfoUri, nil)
 	if err != nil {
 		return nil, err
