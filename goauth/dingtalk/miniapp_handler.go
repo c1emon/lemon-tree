@@ -3,6 +3,7 @@ package dingtalk
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/c1emon/lemontree/goauth"
 	"io"
@@ -63,8 +64,11 @@ func getBackEndAccessToken(key, secret string) (string, error) {
 	}{}
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		fmt.Println(string(body))
 		return "", err
+	}
+
+	if r.ErrCode != 0 {
+		return "", errors.New(r.ErrMsg)
 	}
 
 	return r.AccessToken, nil
@@ -125,6 +129,10 @@ func (d *MiniAppHandler) GetIdentity(token string) (*goauth.Identity, error) {
 	err = json.Unmarshal(body, &r)
 	if err != nil {
 		return nil, err
+	}
+
+	if r.ErrCode != 0 {
+		return nil, errors.New(r.ErrMsg)
 	}
 
 	return &goauth.Identity{
