@@ -6,6 +6,8 @@ import (
 	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/log"
 	"sync"
+
+	_ "github.com/lib/pq"
 )
 
 var lock = &sync.Mutex{}
@@ -21,11 +23,17 @@ func GetEntClient() *ent.Client {
 		var err error
 		c, err = ent.Open(conf.DbDriver, conf.DbSource)
 		if err != nil {
-			logger.Panic("failed connect db")
+			if err := c.Close(); err != nil {
+				logger.Warnf("unable close db client: %s", err)
+			}
+			logger.Panicf("failed connect db: %s", err)
 		}
 
 		if err := c.Schema.Create(context.Background()); err != nil {
-			logger.Fatalf("failed create schema resources: %v", err)
+			if err := c.Close(); err != nil {
+				logger.Warnf("unable close db client: %s", err)
+			}
+			logger.Fatalf("failed create schema resources: %s", err)
 		}
 
 	}
