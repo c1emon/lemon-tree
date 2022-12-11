@@ -16,6 +16,7 @@ type CommonMixin struct {
 
 func (CommonMixin) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int64("id").StructTag(`json:"-"`),
 		field.Time("created_at").
 			Immutable().
 			Default(time.Now),

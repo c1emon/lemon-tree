@@ -15,8 +15,8 @@ type Staff struct {
 func (Staff) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.String("username"),
-		field.String("password"),
+		field.String("username").Unique(),
+		field.String("password").Sensitive(),
 		field.String("email").Optional(),
 		field.String("phone").Optional(),
 		field.String("openid"),
