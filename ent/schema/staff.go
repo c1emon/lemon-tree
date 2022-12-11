@@ -16,6 +16,13 @@ type Staff struct {
 func (Staff) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
+		field.String("username"),
+		field.String("password"),
+		field.String("email").Optional(),
+		field.String("phone").Optional(),
+		field.String("open_id"),
+		field.String("union_id"),
+		field.JSON("identities", nil),
 		field.Int("age").Optional(),
 		field.Enum("gender").Values("male", "female", "unknown").Default("unknown"),
 	}
