@@ -29,7 +29,7 @@ func Test_DbCreate(t *testing.T) {
 	//client.Department.Create().SetName("o3d2").SetOrganizationID(3).SetUpdateTime(time.Now()).SetCreateTime(time.Now()).SaveX(context.Background())
 
 	var oid = "asass"
-	d, _ := client.Organization.Query().Where(organization.Oid(oid)).QueryDepartments().Where(department.ID(1)).Only(context.Background())
+	d, _ := client.Organization.Query().Where(organization.ExternalID(oid)).QueryDepartments().Where(department.ID(1)).Only(context.Background())
 	fmt.Printf("d:\n%s", d)
 
 	if err := client.Close(); err != nil {
