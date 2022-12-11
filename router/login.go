@@ -1,6 +1,8 @@
 package router
 
 import (
+	"github.com/c1emon/lemontree/dao"
+	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/goauth"
 	"github.com/c1emon/lemontree/goauth/dingtalk"
 	"github.com/labstack/echo/v4"
@@ -8,10 +10,13 @@ import (
 )
 
 type LoginHandler struct {
+	client *ent.Client
 }
 
 func BuildLogin(g *echo.Group) {
-	h := &LoginHandler{}
+	h := &LoginHandler{
+		client: dao.GetEntClient(),
+	}
 
 	oauthG := g.Group("/oauth")
 	oauthG.Any("/:id", h.oauthHandler)
@@ -20,12 +25,20 @@ func BuildLogin(g *echo.Group) {
 }
 
 // oauthHandler handle any http request to /api/v1/login/oauth/id
-func (*LoginHandler) oauthHandler(c echo.Context) error {
+func (h *LoginHandler) oauthHandler(c echo.Context) error {
 	id := c.Param("id")
 
 	if c.FormValue("grant_type") == "password" {
 		username := c.FormValue("username")
 		password := c.FormValue("password")
+		//s, err := h.client.Staff.Query().Where(staff.UsernameEQ(username)).Only(context.Background())
+		//if err != nil {
+		//	//if foundError, ok := err.(ent.NotFoundError); ok {
+		//	//
+		//	//}
+		//	return errors.New("bad username")
+		//}
+
 		c.Logger().Infof("id=%s,username=%s,password=%s", id, username, password)
 	}
 
