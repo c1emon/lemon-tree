@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Organization holds the schema definition for the Organization entity.
@@ -25,12 +24,14 @@ func (Organization) Edges() []ent.Edge {
 		edge.To("departments", Department.Type),
 		edge.To("staffs", Staff.Type),
 		edge.To("oauth_clients", OauthClient.Type),
-		edge.To("identity_providers", IdentityProvider.Type)}
+		edge.To("identity_providers", IdentityProvider.Type),
+		edge.To("identity_bindings", IdentityBinding.Type),
+	}
 }
 
 func (Organization) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		CommonMixin{},
 		// Or, mixin.CreateTime only for create_time
 		// and mixin.UpdateTime only for update_time.
 	}

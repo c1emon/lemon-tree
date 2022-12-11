@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Staff holds the schema definition for the Staff entity.
@@ -20,9 +19,7 @@ func (Staff) Fields() []ent.Field {
 		field.String("password"),
 		field.String("email").Optional(),
 		field.String("phone").Optional(),
-		field.String("open_id"),
-		field.String("union_id"),
-		field.JSON("identities", nil),
+		field.String("openid"),
 		field.Int("age").Optional(),
 		field.Enum("gender").Values("male", "female", "unknown").Default("unknown"),
 	}
@@ -37,12 +34,13 @@ func (Staff) Edges() []ent.Edge {
 		edge.From("department", Department.Type).
 			Ref("staffs").
 			Unique(),
+		edge.To("identity_bindings", IdentityBinding.Type),
 	}
 }
 
 func (Staff) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		CommonMixin{},
 		// Or, mixin.CreateTime only for create_time
 		// and mixin.UpdateTime only for update_time.
 	}

@@ -2,7 +2,6 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Role holds the schema definition for the Role entity.
@@ -22,7 +21,7 @@ func (Role) Edges() []ent.Edge {
 
 func (Role) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		CommonMixin{},
 		// Or, mixin.CreateTime only for create_time
 		// and mixin.UpdateTime only for update_time.
 	}

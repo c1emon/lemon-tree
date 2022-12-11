@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Department holds the schema definition for the Department entity.
@@ -33,7 +32,7 @@ func (Department) Edges() []ent.Edge {
 
 func (Department) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		CommonMixin{},
 		// Or, mixin.CreateTime only for create_time
 		// and mixin.UpdateTime only for update_time.
 	}
