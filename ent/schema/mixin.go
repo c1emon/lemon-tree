@@ -23,6 +23,7 @@ func (CommonMixin) Fields() []ent.Field {
 			Default(time.Now).
 			UpdateDefault(time.Now),
 		field.String("external_id").
+			StructTag(`json:"eid,omitempty"`).
 			Unique().Immutable().NotEmpty().
 			DefaultFunc(cuid.New),
 	}
