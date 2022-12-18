@@ -1,10 +1,12 @@
 package router
 
 import (
+	"github.com/c1emon/lemontree/doauth"
 	"github.com/c1emon/lemontree/log"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
+	"net/http"
 	"sync"
 )
 
@@ -41,7 +43,15 @@ func SingletonEchoFactory() *echo.Echo {
 	return e
 }
 
-func BuildRouter() error {
+func HttpWrapperWithError(h doauth.HandlerFuncWithError) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return h(c.Response().Writer, c.Request())
+	}
+}
 
-	return nil
+func HttpWrapper(h http.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		h(c.Response().Writer, c.Request())
+		return nil
+	}
 }

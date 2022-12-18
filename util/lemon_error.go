@@ -3,26 +3,27 @@ package util
 type LemonErrorType int
 
 const (
-	ResNotFound LemonErrorType = iota
-	DupKeyError
-	InterError
+	ResourceNotFound LemonErrorType = iota + 1000
+	DuplicateKey
+	InternalError
+	ResourceUnavailable
 )
 
 type LemonError struct {
-	t   LemonErrorType
-	msg string
-	res string
+	Type LemonErrorType
+	Msg  string
+	Res  string
 }
 
 func (e *LemonError) Error() string {
 
-	return e.msg
+	return e.Msg
 }
 
 func LemonNotFoundError(res string) *LemonError {
 	return &LemonError{
-		t:   ResNotFound,
-		res: res,
-		msg: "res not found",
+		Type: ResourceNotFound,
+		Res:  res,
+		Msg:  "res not found",
 	}
 }
