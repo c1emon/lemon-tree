@@ -14,8 +14,7 @@ type IdentityBinding struct {
 // Fields of the IdentityBinding.
 func (IdentityBinding) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("identity_id"),
-		field.String("meta_data_json"),
+		field.String("name"),
 	}
 }
 
@@ -28,7 +27,7 @@ func (IdentityBinding) Edges() []ent.Edge {
 		edge.From("identity_provider", IdentityProvider.Type).
 			Ref("identity_bindings").
 			Unique(),
-		edge.From("staff", Staff.Type).
+		edge.From("user", User.Type).
 			Ref("identity_bindings").
 			Unique(),
 	}

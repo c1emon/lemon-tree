@@ -7,11 +7,31 @@ import (
 	"github.com/c1emon/lemontree/log"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/compose"
+	"github.com/ory/fosite/handler/openid"
 	"github.com/ory/fosite/storage"
+	"github.com/ory/fosite/token/jwt"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
+
+func emptySession(user string) *openid.DefaultSession {
+	now := time.Now()
+	return &openid.DefaultSession{
+		Claims: &jwt.IDTokenClaims{
+			Issuer:      "https://fosite.my-application.com",
+			Subject:     user,
+			Audience:    []string{"https://my-client.my-application.com"},
+			ExpiresAt:   now.Add(time.Hour * 6),
+			IssuedAt:    now,
+			RequestedAt: now,
+			AuthTime:    now,
+		},
+		Headers: &jwt.Headers{
+			Extra: make(map[string]interface{}),
+		},
+	}
+}
 
 var _ Endpoint = &DefaultHandler{}
 
@@ -93,7 +113,7 @@ func (e *DefaultHandler) AuthEndpoint(rw http.ResponseWriter, req *http.Request)
 	}
 
 	// Now that the user is authorized, we set up a session:
-	mySessionData := newSession("peter")
+	mySessionData := emptySession("peter")
 
 	// When using the HMACSHA strategy you must use something that implements the HMACSessionContainer.
 	// It brings you the power of overriding the default values.
@@ -141,7 +161,7 @@ func (e *DefaultHandler) TokenEndpoint(rw http.ResponseWriter, req *http.Request
 	ctx := req.Context()
 
 	// Create an empty session object which will be passed to the request handlers
-	mySessionData := newSession("")
+	mySessionData := emptySession("")
 
 	// This will create an access request object and iterate through the registered TokenEndpointHandlers to validate the request.
 	accessRequest, err := e.oauth2.NewAccessRequest(ctx, req, mySessionData)
@@ -190,12 +210,12 @@ func (e *DefaultHandler) RevokeEndpoint(rw http.ResponseWriter, req *http.Reques
 
 	// All done, send the response.
 	e.oauth2.WriteRevocationResponse(ctx, rw, err)
-	return nil
+	return err
 }
 
 func (e *DefaultHandler) IntrospectionEndpoint(rw http.ResponseWriter, req *http.Request) error {
 	ctx := req.Context()
-	mySessionData := newSession("")
+	mySessionData := emptySession("")
 	ir, err := e.oauth2.NewIntrospectionRequest(ctx, req, mySessionData)
 	if err != nil {
 		e.logger.Errorf("Error occurred in NewIntrospectionRequest: %+v", err)

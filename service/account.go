@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"github.com/c1emon/lemontree/dao"
 	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/ent/organization"
 	"github.com/c1emon/lemontree/ent/staff"
+	"github.com/c1emon/lemontree/persister"
 	"github.com/c1emon/lemontree/util"
 )
 
@@ -14,7 +14,7 @@ type AccountService struct {
 }
 
 func NewAccountService() *AccountService {
-	return &AccountService{client: dao.GetEntClient()}
+	return &AccountService{client: persister.GetEntClient()}
 }
 
 func (s *AccountService) CreateAccount(oid int64, username, password string) {

@@ -6,8 +6,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/dao"
 	"github.com/c1emon/lemontree/log"
+	"github.com/c1emon/lemontree/persister"
 	"github.com/c1emon/lemontree/router"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -23,7 +23,7 @@ var serverCmd = &cobra.Command{
 	Short: "start lemon tree server",
 	Run: func(cmd *cobra.Command, args []string) {
 		config.SetConfig(port, dbDriverName, dbSourceName)
-		client := dao.GetEntClient()
+		client := persister.GetEntClient()
 		//idp, _ := client.Organization.Query().Where(organization.ID(1)).
 		//	QueryIdentityProviders().Where(identityprovider.ID(2)).
 		//	Only(context.Background())

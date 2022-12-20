@@ -6,13 +6,13 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// Staff holds the schema definition for the Staff entity.
-type Staff struct {
+// User holds the schema definition for the User entity.
+type User struct {
 	ent.Schema
 }
 
-// Fields of the Staff.
-func (Staff) Fields() []ent.Field {
+// Fields of the User.
+func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
 		field.String("username").Unique(),
@@ -20,25 +20,25 @@ func (Staff) Fields() []ent.Field {
 		field.String("email").Optional(),
 		field.String("phone").Optional(),
 		field.String("openid"),
-		field.Int("age").Optional(),
+		field.Int("age").Optional().Max(120).Min(0),
 		field.Enum("gender").Values("male", "female", "unknown").Default("unknown"),
 	}
 }
 
-// Edges of the Staff.
-func (Staff) Edges() []ent.Edge {
+// Edges of the User.
+func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("organization", Organization.Type).
-			Ref("staffs").
+			Ref("users").
 			Unique(),
 		edge.From("department", Department.Type).
-			Ref("staffs").
+			Ref("users").
 			Unique(),
 		edge.To("identity_bindings", IdentityBinding.Type),
 	}
 }
 
-func (Staff) Mixin() []ent.Mixin {
+func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		CommonMixin{},
 		// Or, mixin.CreateTime only for create_time

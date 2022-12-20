@@ -26,7 +26,7 @@ func (Department) Edges() []ent.Edge {
 			Unique(),
 		edge.To("parent_departments", Department.Type).
 			From("child_departments"),
-		edge.To("staffs", Staff.Type),
+		edge.To("users", User.Type),
 	}
 }
 

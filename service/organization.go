@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/c1emon/lemontree/dao"
 	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/ent/organization"
+	"github.com/c1emon/lemontree/persister"
 	"github.com/c1emon/lemontree/util"
 )
 
@@ -14,7 +14,7 @@ type OrganizationService struct {
 }
 
 func NewOrganizationService() *OrganizationService {
-	return &OrganizationService{client: dao.GetEntClient()}
+	return &OrganizationService{client: persister.GetEntClient()}
 }
 
 func (s *OrganizationService) CreateOrganization() {

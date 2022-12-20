@@ -1,10 +1,10 @@
 package router
 
 import (
-	"github.com/c1emon/lemontree/dao"
 	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/goauth"
 	"github.com/c1emon/lemontree/goauth/dingtalk"
+	"github.com/c1emon/lemontree/persister"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -15,7 +15,7 @@ type LoginHandler struct {
 
 func BuildLogin(g *echo.Group) {
 	h := &LoginHandler{
-		client: dao.GetEntClient(),
+		client: persister.GetEntClient(),
 	}
 
 	oauthG := g.Group("/oauth")
@@ -24,7 +24,7 @@ func BuildLogin(g *echo.Group) {
 
 }
 
-// oauthHandler handle any http request to /api/v1/login/oauth/id
+// oauthHandler handle any http request to /api/v1/login/oauth/:id
 func (h *LoginHandler) oauthHandler(c echo.Context) error {
 	id := c.Param("id")
 

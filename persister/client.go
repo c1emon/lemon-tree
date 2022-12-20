@@ -1,7 +1,8 @@
-package dao
+package persister
 
 import (
 	"context"
+	"fmt"
 	"github.com/c1emon/lemontree/config"
 	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/log"
@@ -13,7 +14,7 @@ import (
 var lock = &sync.Mutex{}
 var c *ent.Client
 
-func GetEntClient() *ent.Client {
+func initEntClient() *ent.Client {
 	logger := log.GetLogger()
 	lock.Lock()
 	defer lock.Unlock()
@@ -39,4 +40,11 @@ func GetEntClient() *ent.Client {
 	}
 
 	return c
+}
+
+func rollback(tx *ent.Tx, err error) error {
+	if rerr := tx.Rollback(); rerr != nil {
+		err = fmt.Errorf("%w: %v", err, rerr)
+	}
+	return err
 }
