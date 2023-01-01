@@ -2,44 +2,39 @@ package persister
 
 import (
 	"context"
-	"github.com/c1emon/lemontree/ent"
-	"github.com/c1emon/lemontree/ent/organization"
+	"github.com/c1emon/lemontree/model"
+	"github.com/jmoiron/sqlx"
 )
 
-type EntOrganizationRepository struct {
-	client *ent.Client
+// check
+var _ model.BaseRepository[model.Organization] = &DefaultOrganizationRepository{}
+var _ model.OrganizationRepository = &DefaultOrganizationRepository{}
+
+type DefaultOrganizationRepository struct {
+	db *sqlx.DB
 }
 
-func (r *EntOrganizationRepository) SetClient(c any) {
-	r.client = c.(*ent.Client)
+func (r *DefaultOrganizationRepository) AddDepartment(ctx context.Context, department model.Department) error {
+	r.db.Query("xx")
+	return nil
 }
 
-func (r *EntOrganizationRepository) Create(ctx context.Context, o ent.Organization) (*ent.Organization, error) {
-
-	return r.client.Organization.Create().SetName(o.Name).Save(ctx)
+func (r *DefaultOrganizationRepository) CreateOne(ctx context.Context, org model.Organization) (model.Organization, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (r *EntOrganizationRepository) Delete(ctx context.Context, id string) error {
-
-	_, err := r.client.Organization.Query().Where(organization.ExternalIDEQ(id)).Only(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = r.client.Organization.Delete().Where(organization.ExternalIDEQ(id)).Exec(ctx)
-
-	return err
+func (r *DefaultOrganizationRepository) GetOneById(ctx context.Context, id string) (model.Organization, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (r *EntOrganizationRepository) Update(ctx context.Context, id string, o ent.Organization) (*ent.Organization, error) {
-
-	err := r.client.Organization.Update().Where(organization.ExternalIDEQ(id)).SetName(o.Name).Exec(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.client.Organization.Query().Where(organization.ExternalIDEQ(id)).Only(ctx)
+func (r *DefaultOrganizationRepository) UpdateOneById(ctx context.Context, id string, org model.Organization) (model.Organization, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (r *EntOrganizationRepository) GetOneById(ctx context.Context, id string) (*ent.Organization, error) {
-	return r.client.Organization.Query().Where(organization.ExternalIDEQ(id)).Only(ctx)
+func (r *DefaultOrganizationRepository) DeleteOneById(ctx context.Context, id string) error {
+	//TODO implement me
+	panic("implement me")
 }

@@ -1,22 +1,17 @@
 package router
 
 import (
-	"github.com/c1emon/lemontree/ent"
 	"github.com/c1emon/lemontree/goauth"
 	"github.com/c1emon/lemontree/goauth/dingtalk"
-	"github.com/c1emon/lemontree/persister"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 type LoginHandler struct {
-	client *ent.Client
 }
 
 func BuildLogin(g *echo.Group) {
-	h := &LoginHandler{
-		client: persister.GetEntClient(),
-	}
+	h := &LoginHandler{}
 
 	oauthG := g.Group("/oauth")
 	oauthG.Any("/:id", h.oauthHandler)

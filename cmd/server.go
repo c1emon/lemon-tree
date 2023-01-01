@@ -23,19 +23,19 @@ var serverCmd = &cobra.Command{
 	Short: "start lemon tree server",
 	Run: func(cmd *cobra.Command, args []string) {
 		config.SetConfig(port, dbDriverName, dbSourceName)
-		client := persister.GetEntClient()
-		//idp, _ := client.Organization.Query().Where(organization.ID(1)).
-		//	QueryIdentityProviders().Where(identityprovider.ID(2)).
-		//	Only(context.Background())
-		//idp.OauthConfig.
+		db := persister.GetDB()
+
+		defer func() {
+			if err := db.Close(); err != nil {
+				log.GetLogger().Warnf("unable close db: %s", err)
+			}
+		}()
+
 		e := router.SingletonEchoFactory()
 		loginG := e.Group("/api/v1/login")
 		router.BuildLogin(loginG)
 		e.Start(fmt.Sprintf(":%d", port))
 
-		if err := client.Close(); err != nil {
-			log.GetLogger().Warnf("unable close db client: %s", err)
-		}
 	},
 }
 
