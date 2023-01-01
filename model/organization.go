@@ -4,9 +4,10 @@ import "context"
 
 type Organization struct {
 	BaseField
-	Name string
+	Name string `json:"name,omitempty"`
 }
 
 type OrganizationRepository interface {
+	BaseRepository[Organization]
 	AddDepartment(context.Context, Department) error
 }

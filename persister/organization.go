@@ -7,7 +7,7 @@ import (
 )
 
 // check
-var _ model.BaseRepository[model.Organization] = &DefaultOrganizationRepository{}
+// var _ model.BaseRepository[model.Organization] = &DefaultOrganizationRepository{}
 var _ model.OrganizationRepository = &DefaultOrganizationRepository{}
 
 type DefaultOrganizationRepository struct {
