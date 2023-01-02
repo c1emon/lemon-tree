@@ -7,7 +7,6 @@ import (
 )
 
 // check
-// var _ model.BaseRepository[model.Organization] = &DefaultOrganizationRepository{}
 var _ model.OrganizationRepository = &DefaultOrganizationRepository{}
 
 type DefaultOrganizationRepository struct {
@@ -15,7 +14,6 @@ type DefaultOrganizationRepository struct {
 }
 
 func (r *DefaultOrganizationRepository) AddDepartment(ctx context.Context, department model.Department) error {
-	r.db.Query("xx")
 	return nil
 }
 

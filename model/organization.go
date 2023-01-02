@@ -4,7 +4,7 @@ import "context"
 
 type Organization struct {
 	BaseField
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 }
 
 type OrganizationRepository interface {

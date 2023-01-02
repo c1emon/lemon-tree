@@ -2,14 +2,10 @@ package model
 
 type Department struct {
 	BaseField
-	OrganizationId string
-	Name           string
+	Name           string `json:"name"`
+	OrganizationId string `json:"oid"`
 }
 
-func NewDepartment() *Department {
-	return &Department{BaseField: BaseField{}}
-}
-
-func CreateDepartment() *Department {
-	return &Department{BaseField: CreateBaseField()}
+type DepartmentRepository interface {
+	BaseRepository[Department]
 }

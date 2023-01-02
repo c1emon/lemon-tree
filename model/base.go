@@ -13,6 +13,9 @@ type BaseField struct {
 	UpdateTime time.Time `json:"update_time" db:"update_time"`
 }
 
+type MetaField struct {
+}
+
 func CreateBaseField() BaseField {
 	n := time.Now()
 	return BaseField{EId: cuid.New(), CreateTime: n, UpdateTime: n}
