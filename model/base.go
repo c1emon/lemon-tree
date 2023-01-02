@@ -7,8 +7,7 @@ import (
 )
 
 type BaseField struct {
-	id         int64
-	EId        string    `json:"id" db:"eid"`
+	Id         string    `json:"id" db:"id"`
 	CreateTime time.Time `json:"create_time" db:"create_time"`
 	UpdateTime time.Time `json:"update_time" db:"update_time"`
 }
@@ -18,11 +17,11 @@ type MetaField struct {
 
 func CreateBaseField() BaseField {
 	n := time.Now()
-	return BaseField{EId: cuid.New(), CreateTime: n, UpdateTime: n}
+	return BaseField{Id: cuid.New(), CreateTime: n, UpdateTime: n}
 }
 
-func (f *BaseField) GetEId() string {
-	return f.EId
+func (f *BaseField) GetId() string {
+	return f.Id
 }
 
 func (f *BaseField) GetCreatedTime() time.Time {
@@ -38,8 +37,9 @@ func (f *BaseField) SetUpdatedTime(t time.Time) {
 }
 
 type BaseRepository[T any] interface {
-	CreateOne(context.Context, T) (T, error)
-	GetOneById(context.Context, string) (T, error)
-	UpdateOneById(context.Context, string, T) (T, error)
+	CreateOne(context.Context, T) (*T, error)
+	GetOneById(context.Context, string) (*T, error)
+	UpdateOneById(context.Context, string, T) (*T, error)
 	DeleteOneById(context.Context, string) error
+	TableName() string
 }

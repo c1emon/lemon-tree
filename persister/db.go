@@ -29,3 +29,10 @@ func GetDB() *sqlx.DB {
 	}
 	return db
 }
+
+func DisConnect() error {
+	if db != nil && db.Ping() == nil {
+		return db.Close()
+	}
+	return nil
+}
