@@ -3,36 +3,90 @@ package persister
 import (
 	"github.com/c1emon/lemontree/config"
 	"github.com/c1emon/lemontree/log"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"strings"
 	"sync"
 )
 
-var lock = &sync.Mutex{}
+var once = sync.Once{}
+var DB *gorm.DB
 
-var db *sqlx.DB
+type DriverType int
 
-func Connect(driverName, dataSourceName string) *sqlx.DB {
-	db, err := sqlx.Connect(driverName, dataSourceName)
+const (
+	Unknown DriverType = iota - 1
+	Postgres
+	Mysql
+	Sqlite
+)
+
+func (d DriverType) String() string {
+	switch d {
+	case Postgres:
+		return "postgres"
+	case Mysql:
+		return "mysql"
+	case Sqlite:
+		return "sqlite"
+	default:
+		return "unknown"
+	}
+}
+
+func ParseDriverType(dt string) DriverType {
+	switch strings.ToLower(dt) {
+	case "postgres":
+		return Postgres
+	case "mysql":
+		return Mysql
+	case "sqlite":
+		return Sqlite
+	default:
+		return Unknown
+	}
+}
+
+func Connect(driverName DriverType, dsn string) {
+	var dialector gorm.Dialector
+	switch driverName {
+	case Postgres:
+		dialector = postgres.Open(dsn)
+	case Mysql:
+		dialector = mysql.Open(dsn)
+	case Sqlite:
+		dialector = sqlite.Open(dsn)
+	case Unknown:
+	default:
+		log.GetLogger().Panicf("unknown driver type: %s", driverName)
+	}
+	db, err := gorm.Open(dialector, &gorm.Config{})
 	if err != nil {
 		log.GetLogger().Panicf("unable connect to %s: %s", driverName, err)
 	}
-	return db
+	DB = db
 }
 
-func GetDB() *sqlx.DB {
-	lock.Lock()
-	defer lock.Unlock()
-	if db == nil {
+func GetDB() *gorm.DB {
+
+	once.Do(func() {
 		c := config.GetConfig()
-		db = Connect(c.DbDriver, c.DbSource)
-	}
-	return db
+		Connect(ParseDriverType(c.DbDriver), c.DbSource)
+	})
+
+	return DB
 }
 
 func DisConnect() error {
-	if db != nil && db.Ping() == nil {
-		return db.Close()
+	if DB != nil {
+		d, err := DB.DB()
+		if err != nil {
+			return nil
+		}
+		return d.Close()
 	}
 	return nil
 }

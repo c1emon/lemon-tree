@@ -41,5 +41,5 @@ type BaseRepository[T any] interface {
 	GetOneById(context.Context, string) (*T, error)
 	UpdateOneById(context.Context, string, T) (*T, error)
 	DeleteOneById(context.Context, string) error
-	TableName() string
+	InitDB() error
 }
