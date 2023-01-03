@@ -40,6 +40,9 @@ func (l *gormLogrus) Error(ctx context.Context, format string, values ...interfa
 }
 
 func (l *gormLogrus) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+	if l.Logger.GetLevel() <= logrus.FatalLevel {
+		return
+	}
 
 	elapsed := time.Since(begin)
 	sql, rows := fc()
@@ -60,8 +63,8 @@ func (l *gormLogrus) Trace(ctx context.Context, begin time.Time, fc func() (sql 
 		return
 	}
 
-	if l.Logger.GetLevel() == logrus.InfoLevel {
-		l.Logger.WithContext(ctx).WithFields(fields).Infof("exec sql (affect %d rows)", rows)
+	if l.Logger.GetLevel() >= logrus.DebugLevel {
+		l.Logger.WithContext(ctx).WithFields(fields).Debugf("exec sql (affect %d rows)", rows)
 	}
 }
 
