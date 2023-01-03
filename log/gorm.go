@@ -61,7 +61,7 @@ func (l *gormLogrus) Trace(ctx context.Context, begin time.Time, fc func() (sql 
 	}
 
 	if l.Logger.GetLevel() == logrus.InfoLevel {
-		l.Logger.WithContext(ctx).WithFields(fields).Infof("exec sql (rows %d)", rows)
+		l.Logger.WithContext(ctx).WithFields(fields).Infof("exec sql (affect %d rows)", rows)
 	}
 }
 
