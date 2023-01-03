@@ -19,6 +19,7 @@ func Test_DbCreate(t *testing.T) {
 	}()
 
 	r := persister.NewDefaultOrganizationRepository()
-	r.CreateOne(context.Background(), model.Organization{Name: "taaest"})
+	r.CreateOne(context.Background(), &model.Organization{Name: "ta2aest"})
+	r.CreateOne(context.Background(), &model.Organization{Name: "taaest"})
 
 }

@@ -25,9 +25,9 @@ func (r *DefaultOrganizationRepository) AddDepartment(ctx context.Context, depar
 	return nil
 }
 
-func (r *DefaultOrganizationRepository) CreateOne(ctx context.Context, org model.Organization) (*model.Organization, error) {
+func (r *DefaultOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) (*model.Organization, error) {
 
-	return nil, nil
+	return org, r.db.Create(org).Error
 }
 
 func (r *DefaultOrganizationRepository) GetOneById(ctx context.Context, id string) (*model.Organization, error) {
@@ -35,7 +35,7 @@ func (r *DefaultOrganizationRepository) GetOneById(ctx context.Context, id strin
 	return nil, nil
 }
 
-func (r *DefaultOrganizationRepository) UpdateOneById(ctx context.Context, id string, org model.Organization) (*model.Organization, error) {
+func (r *DefaultOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *model.Organization) (*model.Organization, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -46,6 +46,5 @@ func (r *DefaultOrganizationRepository) DeleteOneById(ctx context.Context, id st
 }
 
 func (r *DefaultOrganizationRepository) InitDB() error {
-
-	return nil
+	return r.db.AutoMigrate(&model.Organization{})
 }
