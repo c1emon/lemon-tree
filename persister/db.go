@@ -63,7 +63,10 @@ func Connect(driverName DriverType, dsn string) {
 	default:
 		log.GetLogger().Panicf("unknown driver type: %s", driverName)
 	}
-	db, err := gorm.Open(dialector, &gorm.Config{})
+	db, err := gorm.Open(dialector, &gorm.Config{
+		Logger: log.GetGormLogrusLogger(),
+	})
+
 	if err != nil {
 		log.GetLogger().Panicf("unable connect to %s: %s", driverName, err)
 	}
