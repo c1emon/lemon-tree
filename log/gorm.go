@@ -3,9 +3,10 @@ package log
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 	gl "gorm.io/gorm/logger"
+	"gorm.io/gorm/utils"
 	"sync"
 	"time"
 )
@@ -16,7 +17,8 @@ var onceGorm = sync.Once{}
 
 type gormLogrus struct {
 	*logrus.Logger
-	gl.Config
+	SlowThreshold             time.Duration
+	IgnoreRecordNotFoundError bool
 }
 
 func (l *gormLogrus) LogMode(level gl.LogLevel) gl.Interface {
@@ -38,32 +40,39 @@ func (l *gormLogrus) Error(ctx context.Context, format string, values ...interfa
 }
 
 func (l *gormLogrus) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+
 	elapsed := time.Since(begin)
-	sql, _ := fc()
+	sql, rows := fc()
+	caller := utils.FileWithLineNum()
 
 	fields := logrus.Fields{}
-	//if l.SourceField != "" {
-	//	fields[l.SourceField] = utils.FileWithLineNum()
-	//}
-	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound) && l.IgnoreRecordNotFoundError) {
-		fields[logrus.ErrorKey] = err
-		l.Logger.WithContext(ctx).WithFields(fields).Errorf("%s [%s]", sql, elapsed)
+	fields["sql"] = sql
+	fields["elapsed"] = fmt.Sprintf("%d ms", elapsed.Milliseconds())
+	fields["caller"] = caller
+
+	if err != nil && (!errors.Is(err, gl.ErrRecordNotFound) || !l.IgnoreRecordNotFoundError) {
+		l.Logger.WithContext(ctx).WithFields(fields).Errorf("%s", err)
 		return
 	}
 
 	if l.SlowThreshold != 0 && elapsed > l.SlowThreshold {
-		l.Logger.WithContext(ctx).WithFields(fields).Warnf("%s [%s]", sql, elapsed)
+		l.Logger.WithContext(ctx).WithFields(fields).Warnf("slow sql (>%dms)", l.SlowThreshold.Milliseconds())
 		return
 	}
 
-	if l.Logger.GetLevel() == logrus.DebugLevel {
-		l.Logger.WithContext(ctx).WithFields(fields).Debugf("%s [%s]", sql, elapsed)
+	if l.Logger.GetLevel() == logrus.InfoLevel {
+		l.Logger.WithContext(ctx).WithFields(fields).Infof("exec sql (rows %d)", rows)
 	}
 }
 
 func GetGormLogrusLogger() *gormLogrus {
 	onceGorm.Do(func() {
-		gormLog = &gormLogrus{Logger: GetLogger(), Config: gl.Config{}}
+		l := GetLogger()
+		gormLog = &gormLogrus{
+			Logger:                    l,
+			SlowThreshold:             200 * time.Millisecond,
+			IgnoreRecordNotFoundError: false,
+		}
 	})
 
 	return gormLog
