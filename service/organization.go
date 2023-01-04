@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"github.com/c1emon/lemontree/model"
 	"github.com/c1emon/lemontree/persister"
 )
@@ -12,10 +11,9 @@ type OrganizationService struct {
 
 func NewOrganizationService() *OrganizationService {
 	return &OrganizationService{
-		r: &persister.DefaultOrganizationRepository{},
+		r: &persister.GormOrganizationRepository{},
 	}
 }
 
 func (s *OrganizationService) CreateOrganization() {
-	s.r.CreateOne(context.Background(), model.Organization{})
 }

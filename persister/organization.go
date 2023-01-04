@@ -7,44 +7,53 @@ import (
 )
 
 // check
-var _ model.OrganizationRepository = &DefaultOrganizationRepository{}
+var _ model.OrganizationRepository = &GormOrganizationRepository{}
 
-type DefaultOrganizationRepository struct {
+type GormOrganizationRepository struct {
 	db *gorm.DB
 }
 
-func NewDefaultOrganizationRepository() *DefaultOrganizationRepository {
-	r := &DefaultOrganizationRepository{
+func NewDefaultOrganizationRepository() *GormOrganizationRepository {
+	r := &GormOrganizationRepository{
 		db: GetDB(),
 	}
-	r.InitDB()
+	_ = r.InitDB()
 	return r
 }
 
-func (r *DefaultOrganizationRepository) AddDepartment(ctx context.Context, department model.Department) error {
+func (r *GormOrganizationRepository) AddDepartment(ctx context.Context, department model.Department) error {
 	return nil
 }
 
-func (r *DefaultOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) (*model.Organization, error) {
+func (r *GormOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) (*model.Organization, error) {
 
-	return org, r.db.Create(org).Error
+	return org, r.db.WithContext(ctx).Create(org).Error
 }
 
-func (r *DefaultOrganizationRepository) GetOneById(ctx context.Context, id string) (*model.Organization, error) {
-
-	return nil, nil
+func (r *GormOrganizationRepository) GetOneById(ctx context.Context, id string) (*model.Organization, error) {
+	org := &model.Organization{}
+	org.Id = id
+	res := r.db.WithContext(ctx).First(org)
+	return org, res.Error
 }
 
-func (r *DefaultOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *model.Organization) (*model.Organization, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *GormOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *model.Organization) (*model.Organization, error) {
+	o, err := r.GetOneById(ctx, id)
+	if err != nil {
+
+	}
+	res := r.db.WithContext(ctx).Model(o).Updates(*org)
+	o, err = r.GetOneById(ctx, id)
+	if err != nil {
+
+	}
+	return o, res.Error
 }
 
-func (r *DefaultOrganizationRepository) DeleteOneById(ctx context.Context, id string) error {
-	//TODO implement me
-	panic("implement me")
+func (r *GormOrganizationRepository) DeleteOneById(ctx context.Context, id string) error {
+	return r.db.WithContext(ctx).Delete(&model.Organization{}, id).Error
 }
 
-func (r *DefaultOrganizationRepository) InitDB() error {
+func (r *GormOrganizationRepository) InitDB() error {
 	return r.db.AutoMigrate(&model.Organization{})
 }
