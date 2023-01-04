@@ -3,23 +3,30 @@ package model
 import (
 	"context"
 	"github.com/lucsky/cuid"
+	"gorm.io/gorm"
 	"time"
 )
 
 type BaseField struct {
-	id         int64
-	EId        string    `json:"id" db:"eid"`
-	CreateTime time.Time `json:"create_time" db:"create_time"`
-	UpdateTime time.Time `json:"update_time" db:"update_time"`
+	Id         string    `json:"id" gorm:"column:id;type:char(25);primaryKey;<-:create"`
+	CreateTime time.Time `json:"create_time" gorm:"column:create_time;autoCreateTime"`
+	UpdateTime time.Time `json:"update_time" gorm:"column:update_time;<-:create;autoUpdateTime"`
+}
+
+func (f *BaseField) BeforeCreate(tx *gorm.DB) (err error) {
+	f.Id = cuid.New()
+	return nil
+}
+
+type MetaField struct {
 }
 
 func CreateBaseField() BaseField {
-	n := time.Now()
-	return BaseField{EId: cuid.New(), CreateTime: n, UpdateTime: n}
+	return BaseField{Id: cuid.New()}
 }
 
-func (f *BaseField) GetEId() string {
-	return f.EId
+func (f *BaseField) GetId() string {
+	return f.Id
 }
 
 func (f *BaseField) GetCreatedTime() time.Time {
@@ -35,8 +42,9 @@ func (f *BaseField) SetUpdatedTime(t time.Time) {
 }
 
 type BaseRepository[T any] interface {
-	CreateOne(context.Context, T) (T, error)
-	GetOneById(context.Context, string) (T, error)
-	UpdateOneById(context.Context, string, T) (T, error)
+	CreateOne(context.Context, *T) (*T, error)
+	GetOneById(context.Context, string) (*T, error)
+	UpdateOneById(context.Context, string, *T) (*T, error)
 	DeleteOneById(context.Context, string) error
+	InitDB() error
 }

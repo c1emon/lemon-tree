@@ -10,7 +10,7 @@ import (
 )
 
 var el *echoLogrus
-var lock = &sync.Mutex{}
+var onceEcho = sync.Once{}
 
 // echoLogrus extend logrus.Logger
 type echoLogrus struct {
@@ -18,16 +18,14 @@ type echoLogrus struct {
 }
 
 func GetEchoLogrusLogger() *echoLogrus {
-	lock.Lock()
-	defer lock.Unlock()
-	if el == nil {
+	onceEcho.Do(func() {
 		el = &echoLogrus{GetLogger()}
-	}
+	})
 	return el
 }
 
-// To logrus.Level
-func toLogrusLevel(level log.Lvl) logrus.Level {
+// Echo2LogrusLogLevel to logrus.Level
+func Echo2LogrusLogLevel(level log.Lvl) logrus.Level {
 	switch level {
 	case log.DEBUG:
 		return logrus.DebugLevel
@@ -43,8 +41,8 @@ func toLogrusLevel(level log.Lvl) logrus.Level {
 
 }
 
-// To Echo.log.lvl
-func toEchoLogLevel(level logrus.Level) log.Lvl {
+// Logrus2EchoLogLevel to Echo.log.lvl
+func Logrus2EchoLogLevel(level logrus.Level) log.Lvl {
 	switch level {
 	case logrus.DebugLevel, logrus.TraceLevel:
 		return log.DEBUG
@@ -71,12 +69,12 @@ func (l *echoLogrus) SetOutput(w io.Writer) {
 
 // Level return log level
 func (l *echoLogrus) Level() log.Lvl {
-	return toEchoLogLevel(l.Logger.Level)
+	return Logrus2EchoLogLevel(l.Logger.Level)
 }
 
 // SetLevel log level
 func (l *echoLogrus) SetLevel(v log.Lvl) {
-	l.Logger.Level = toLogrusLevel(v)
+	l.Logger.Level = Echo2LogrusLogLevel(v)
 }
 
 // SetHeader log header
