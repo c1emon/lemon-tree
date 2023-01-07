@@ -43,6 +43,14 @@ func (e Error) Error() string {
 	return e.errMsg
 }
 
+func (e Error) Type() ErrorType {
+	return e.errType
+}
+
+func (e Error) TypeIs(t ErrorType) bool {
+	return e.errType == t
+}
+
 func New(msg string, t ErrorType) *Error {
 	return &Error{errMsg: msg, errType: t}
 }
@@ -50,13 +58,13 @@ func New(msg string, t ErrorType) *Error {
 func Is(err error, t ErrorType) bool {
 
 	if e, ok := errors.Cause(err).(Error); ok {
-		return e.errType == t
+		return e.TypeIs(t)
 	}
 	return false
 }
 
 func From(err any) *Error {
-	for _, parser := range ParserHolder.Iter() {
+	for _, parser := range Parsers.Iter() {
 		if parser.Support(err) {
 			msg, t := parser.Do(err)
 			return New(msg, t)

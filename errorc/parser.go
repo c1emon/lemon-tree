@@ -5,7 +5,7 @@ type Parser interface {
 	Support(any) bool
 }
 
-var ParserHolder = &parserHolder{parsers: make(map[string]Parser)}
+var Parsers = &parserHolder{parsers: make(map[string]Parser)}
 
 type parserHolder struct {
 	parsers map[string]Parser
