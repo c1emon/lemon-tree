@@ -19,13 +19,13 @@ const (
 func (t ErrorType) String() string {
 	switch t {
 	case ErrIllegalParam:
-		return "illegal param"
+		return "illegal param error"
 	case ErrDuplicateKey:
-		return "duplicate key"
+		return "duplicate key error"
 	case ErrResourceUnavailable:
-		return "resource unavailable"
+		return "resource unavailable error"
 	case ErrResourceNotFound:
-		return "resource notFound"
+		return "resource notFound error"
 	case ErrInternal:
 		return "internal error"
 	default:
@@ -37,6 +37,7 @@ func (t ErrorType) String() string {
 type Error struct {
 	errMsg  string
 	errType ErrorType
+	from    error
 }
 
 func (e Error) Error() string {
@@ -56,7 +57,6 @@ func New(msg string, t ErrorType) *Error {
 }
 
 func Is(err error, t ErrorType) bool {
-
 	if e, ok := errors.Cause(err).(Error); ok {
 		return e.TypeIs(t)
 	}
@@ -64,15 +64,25 @@ func Is(err error, t ErrorType) bool {
 }
 
 func From(err any) *Error {
+	ec := &Error{}
+	if e, ok := err.(error); ok {
+		ec.from = e
+	} else {
+		ec.from = fmt.Errorf("%+v", err)
+	}
+
 	for _, parser := range Parsers.Iter() {
 		if parser.Support(err) {
-			msg, t := parser.Do(err)
-			return New(msg, t)
+			ec.errMsg, ec.errType = parser.Do(err)
+			return ec
 		}
 	}
+
+	ec.errType = ErrUnknown
 	if e, ok := err.(error); ok {
-		return New(e.Error(), ErrUnknown)
+		ec.errMsg = e.Error()
 	} else {
-		return New(fmt.Sprintf("+%v", err), ErrUnknown)
+		ec.errMsg = fmt.Sprintf("%s", err)
 	}
+	return ec
 }
