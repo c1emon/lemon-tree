@@ -27,9 +27,9 @@ func (r *GormOrganizationRepository) AddDepartment(ctx context.Context, departme
 	return nil
 }
 
-func (r *GormOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) (*model.Organization, error) {
+func (r *GormOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) error {
 	err := r.db.WithContext(ctx).Create(org).Error
-	return org, errors.Wrap(errorc.From(err), "")
+	return errors.Wrap(errorc.From(err), "")
 }
 
 func (r *GormOrganizationRepository) GetOneById(ctx context.Context, id string) (*model.Organization, error) {
