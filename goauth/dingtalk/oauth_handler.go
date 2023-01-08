@@ -70,7 +70,7 @@ func (d *OauthHandler) GetAccessToken(code string) (string, error) {
 
 	defer func(Body io.ReadCloser) {
 		if err := Body.Close(); err != nil {
-			fmt.Printf("failed close http body: %s", err)
+			fmt.Printf("failed close controller body: %s", err)
 		}
 	}(resp.Body)
 
@@ -110,7 +110,7 @@ func (d *OauthHandler) GetIdentity(token string) (*goauth.Identity, error) {
 
 	defer func(Body io.ReadCloser) {
 		if err := Body.Close(); err != nil {
-			fmt.Printf("failed close http body: %s", err)
+			fmt.Printf("failed close controller body: %s", err)
 		}
 	}(resp.Body)
 

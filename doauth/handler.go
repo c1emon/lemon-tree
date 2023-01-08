@@ -132,7 +132,7 @@ func (e *DefaultHandler) AuthEndpoint(rw http.ResponseWriter, req *http.Request)
 
 	// It's also wise to check the requested scopes, e.g.:
 	// if ar.GetRequestedScopes().Has("admin") {
-	//     http.Error(rw, "you're not allowed to do that", http.StatusForbidden)
+	//     controller.Error(rw, "you're not allowed to do that", controller.StatusForbidden)
 	//     return
 	// }
 

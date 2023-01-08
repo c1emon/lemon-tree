@@ -6,9 +6,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/c1emon/lemontree/config"
+	"github.com/c1emon/lemontree/controller"
 	"github.com/c1emon/lemontree/log"
 	"github.com/c1emon/lemontree/persister"
-	"github.com/c1emon/lemontree/router"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -29,9 +29,10 @@ var serverCmd = &cobra.Command{
 			}
 		}()
 
-		e := router.SingletonEchoFactory()
+		e := controller.SingletonEchoFactory()
+
 		loginG := e.Group("/api/v1/login")
-		router.BuildLogin(loginG)
+		controller.BuildLogin(loginG)
 		e.Start(fmt.Sprintf(":%d", port))
 	},
 }

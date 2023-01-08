@@ -2,7 +2,9 @@ package persister
 
 import (
 	"context"
+	"github.com/c1emon/lemontree/errorc"
 	"github.com/c1emon/lemontree/model"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +15,7 @@ type GormOrganizationRepository struct {
 	db *gorm.DB
 }
 
-func NewDefaultOrganizationRepository() *GormOrganizationRepository {
+func NewGormOrganizationRepository() *GormOrganizationRepository {
 	r := &GormOrganizationRepository{
 		db: GetDB(),
 	}
@@ -26,8 +28,8 @@ func (r *GormOrganizationRepository) AddDepartment(ctx context.Context, departme
 }
 
 func (r *GormOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) (*model.Organization, error) {
-
-	return org, r.db.WithContext(ctx).Create(org).Error
+	err := r.db.WithContext(ctx).Create(org).Error
+	return org, errors.Wrap(errorc.From(err), "")
 }
 
 func (r *GormOrganizationRepository) GetOneById(ctx context.Context, id string) (*model.Organization, error) {

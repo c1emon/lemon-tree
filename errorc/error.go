@@ -64,6 +64,9 @@ func Is(err error, t ErrorType) bool {
 }
 
 func From(err any) *Error {
+	if err == nil {
+		return nil
+	}
 	ec := &Error{}
 	if e, ok := err.(error); ok {
 		ec.from = e

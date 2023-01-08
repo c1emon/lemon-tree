@@ -1,4 +1,4 @@
-package router
+package controller
 
 import (
 	"github.com/c1emon/lemontree/goauth"
@@ -19,7 +19,7 @@ func BuildLogin(g *echo.Group) {
 
 }
 
-// oauthHandler handle any http request to /api/v1/login/oauth/:id
+// oauthHandler handle any controller request to /api/v1/login/oauth/:id
 func (h *LoginHandler) oauthHandler(c echo.Context) error {
 	id := c.Param("id")
 
