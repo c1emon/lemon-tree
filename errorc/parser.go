@@ -1,8 +1,8 @@
 package errorc
 
 type Parser interface {
-	Do(any) (string, ErrorType)
-	Support(any) bool
+	Parse(error) *Error
+	Support(error) bool
 }
 
 var Parsers = &parserHolder{parsers: make(map[string]Parser)}

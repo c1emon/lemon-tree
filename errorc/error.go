@@ -1,91 +1,57 @@
 package errorc
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 )
 
-type ErrorType int
-
-const (
-	ErrInternal ErrorType = iota - 1
-	ErrUnknown
-	ErrIllegalParam
-	ErrDuplicateKey
-	ErrResourceUnavailable
-	ErrResourceNotFound
+var (
+	ErrInternal            = New(1000, 500, "internal error")
+	ErrUnknown             = New(1001, 500, "unknown error")
+	ErrIllegalParam        = New(1000, 500, "internal error")
+	ErrDuplicateKey        = New(1000, 500, "internal error")
+	ErrResourceUnavailable = New(1000, 500, "internal error")
+	ErrResourceNotFound    = New(1000, 500, "internal error")
 )
 
-func (t ErrorType) String() string {
-	switch t {
-	case ErrIllegalParam:
-		return "illegal param error"
-	case ErrDuplicateKey:
-		return "duplicate key error"
-	case ErrResourceUnavailable:
-		return "resource unavailable error"
-	case ErrResourceNotFound:
-		return "resource notFound error"
-	case ErrInternal:
-		return "internal error"
-	default:
-		return "unknown error"
-	}
-
+type Error struct {
+	code       int
+	httpStatus int
+	message    string
 }
 
-type Error struct {
-	errMsg  string
-	errType ErrorType
-	from    error
+func New(code, httpStatus int, message string) *Error {
+	return &Error{code: code, httpStatus: httpStatus, message: message}
 }
 
 func (e Error) Error() string {
-	return e.errMsg
+	return e.message
 }
 
-func (e Error) Type() ErrorType {
-	return e.errType
+func (e Error) Code() int {
+	return e.code
 }
 
-func (e Error) TypeIs(t ErrorType) bool {
-	return e.errType == t
+func (e Error) HttpStatus() int {
+	return e.httpStatus
 }
 
-func New(msg string, t ErrorType) *Error {
-	return &Error{errMsg: msg, errType: t}
-}
-
-func Is(err error, t ErrorType) bool {
-	if e, ok := errors.Cause(err).(Error); ok {
-		return e.TypeIs(t)
+func (e Error) Is(err error) bool {
+	if x, ok := errors.Cause(err).(Error); ok {
+		return e.Code() == x.Code()
 	}
 	return false
 }
 
-func From(err any) *Error {
+func From(err error) *Error {
 	if err == nil {
 		return nil
-	}
-	ec := &Error{}
-	if e, ok := err.(error); ok {
-		ec.from = e
-	} else {
-		ec.from = fmt.Errorf("%+v", err)
 	}
 
 	for _, parser := range Parsers.Iter() {
 		if parser.Support(err) {
-			ec.errMsg, ec.errType = parser.Do(err)
-			return ec
+			return parser.Parse(err)
 		}
 	}
 
-	ec.errType = ErrUnknown
-	if e, ok := err.(error); ok {
-		ec.errMsg = e.Error()
-	} else {
-		ec.errMsg = fmt.Sprintf("%s", err)
-	}
-	return ec
+	return ErrUnknown
 }

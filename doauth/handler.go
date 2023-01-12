@@ -80,7 +80,7 @@ func (e *DefaultHandler) AuthEndpoint(rw http.ResponseWriter, req *http.Request)
 		e.oauth2.WriteAuthorizeError(ctx, rw, ar, err)
 		return nil
 	}
-	// You have now access to authorizeRequest, Code ResponseTypes, Scopes ...
+	// You have now access to authorizeRequest, code ResponseTypes, Scopes ...
 
 	var requestedScopes string
 	for _, this := range ar.GetRequestedScopes() {

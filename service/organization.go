@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/c1emon/lemontree/model"
 	"github.com/c1emon/lemontree/persister"
+	"github.com/pkg/errors"
 )
 
 type OrganizationService struct {
@@ -16,10 +17,11 @@ func NewOrganizationService() *OrganizationService {
 	}
 }
 
-func (s *OrganizationService) CreateOrganization() {
+func (s *OrganizationService) CreateOrganization() error {
 	err := s.organizationRepository.CreateOne(context.Background(), nil)
 	if err != nil {
-
+		return errors.WithMessagef(err, "failed create organization")
 	}
 
+	return nil
 }

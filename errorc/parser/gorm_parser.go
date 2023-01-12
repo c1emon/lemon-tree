@@ -9,22 +9,20 @@ import (
 type GormParser struct {
 }
 
-func (p *GormParser) Do(err any) (string, errorc.ErrorType) {
+func (p *GormParser) Parse(err error) *errorc.Error {
 	if e, ok := err.(error); ok {
 		switch {
 		case errors.Is(e, gorm.ErrRecordNotFound):
-			return "", errorc.ErrResourceNotFound
+			return errorc.ErrResourceNotFound
 		}
 	}
-	return "", errorc.ErrUnknown
+	return errorc.ErrUnknown
 }
 
-func (p *GormParser) Support(err any) bool {
-	if e, ok := err.(error); ok {
-		switch {
-		case errors.Is(e, gorm.ErrRecordNotFound), errors.Is(e, gorm.ErrNotImplemented):
-			return true
-		}
+func (p *GormParser) Support(err error) bool {
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound), errors.Is(err, gorm.ErrNotImplemented):
+		return true
 	}
 	return false
 }

@@ -1,17 +1,12 @@
 package controller
 
-type ResponseCode int
-
-const (
-	CodeOK ResponseCode = iota
-	CodeUnknown
-)
+import "github.com/c1emon/lemontree/errorc"
 
 type Response struct {
-	Code    ResponseCode `json:"code"`
-	Message string       `json:"message,omitempty"`
-	Error   string       `json:"error,omitempty"`
-	Data    any          `json:"data,omitempty"`
+	Code    int    `json:"code"`
+	Message string `json:"message,omitempty"`
+	Error   string `json:"error,omitempty"`
+	Data    any    `json:"data,omitempty"`
 }
 
 func (r *Response) WithMessage(msg string) *Response {
@@ -29,10 +24,14 @@ func (r *Response) WithData(data any) *Response {
 	return r
 }
 
-func NewResponse(c ResponseCode) *Response {
+func NewResponse(c int) *Response {
 	return &Response{Code: c}
 }
 
 func ResponseOK() *Response {
-	return NewResponse(CodeOK)
+	return NewResponse(0)
+}
+
+func FromError(err errorc.Error) *Response {
+	return NewResponse(err.Code()).WithError(err.Error())
 }

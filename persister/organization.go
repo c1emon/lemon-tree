@@ -2,6 +2,7 @@ package persister
 
 import (
 	"context"
+	"fmt"
 	"github.com/c1emon/lemontree/errorc"
 	"github.com/c1emon/lemontree/model"
 	"github.com/pkg/errors"
@@ -29,7 +30,7 @@ func (r *GormOrganizationRepository) AddDepartment(ctx context.Context, departme
 
 func (r *GormOrganizationRepository) CreateOne(ctx context.Context, org *model.Organization) error {
 	err := r.db.WithContext(ctx).Create(org).Error
-	return errors.Wrap(errorc.From(err), "")
+	return errors.Wrap(errorc.From(err), fmt.Sprintf("name %s", org.Name))
 }
 
 func (r *GormOrganizationRepository) GetOneById(ctx context.Context, id string) (*model.Organization, error) {
