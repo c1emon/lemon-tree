@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/c1emon/lemontree/errorc"
 	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 )
 
 func HTTPErrorHandler(errRaw error, c echo.Context) {
@@ -14,11 +16,13 @@ func HTTPErrorHandler(errRaw error, c echo.Context) {
 		}
 	}()
 
-	if e, ok := errRaw.(errorc.ErrorX); ok {
-		c.Logger().Infof("checked error: %v", e)
+	route := fmt.Sprintf("[%s] %s", c.Request().Method, c.Request().URL)
+
+	if e, ok := errors.Cause(errRaw).(errorc.ErrorX); ok {
+		c.Logger().Infof("checked error of %s:\n	%s", route, errRaw)
 		err = e
 	} else {
-		c.Logger().Warnf("unchecked error: %+v", errRaw)
+		c.Logger().Warnf("unchecked error %s:\n	%+v", route, errRaw)
 		err = errorc.ErrUnknown
 	}
 

@@ -30,6 +30,7 @@ var serverCmd = &cobra.Command{
 		}()
 
 		e := controller.SingletonEchoFactory()
+		e.HTTPErrorHandler = controller.HTTPErrorHandler
 
 		loginG := e.Group("/api/v1/login")
 		controller.BuildLogin(loginG)
