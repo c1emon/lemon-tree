@@ -1,7 +1,5 @@
 package controller
 
-import "github.com/c1emon/lemontree/errorc"
-
 type Response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message,omitempty"`
@@ -30,8 +28,4 @@ func NewResponse(c int) *Response {
 
 func ResponseOK() *Response {
 	return NewResponse(0)
-}
-
-func FromError(err errorc.Error) *Response {
-	return NewResponse(err.Code()).WithError(err.Error())
 }

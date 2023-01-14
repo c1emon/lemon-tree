@@ -5,44 +5,50 @@ import (
 )
 
 var (
-	ErrInternal            = New(1000, 500, "internal error")
-	ErrUnknown             = New(1001, 500, "unknown error")
-	ErrIllegalParam        = New(1000, 500, "internal error")
-	ErrDuplicateKey        = New(1000, 500, "internal error")
-	ErrResourceUnavailable = New(1000, 500, "internal error")
-	ErrResourceNotFound    = New(1000, 500, "internal error")
+	ErrInternal            = NewCommonError(1000, 502, "internal error")
+	ErrUnknown             = NewCommonError(1001, 500, "unknown error")
+	ErrIllegalParam        = NewCommonError(1002, 400, "illegal param")
+	ErrDuplicateKey        = NewCommonError(1003, 400, "duplicate key")
+	ErrResourceUnavailable = NewCommonError(1004, 400, "resource unavailable")
+	ErrResourceNotFound    = NewCommonError(1005, 400, "resource not found")
 )
 
-type Error struct {
+type ErrorX interface {
+	error
+	Code() int
+	HttpStatus() int
+}
+
+type CommonError struct {
 	code       int
 	httpStatus int
 	message    string
 }
 
-func New(code, httpStatus int, message string) *Error {
-	return &Error{code: code, httpStatus: httpStatus, message: message}
+func NewCommonError(code, httpStatus int, message string) ErrorX {
+	return &CommonError{code: code, httpStatus: httpStatus, message: message}
 }
 
-func (e Error) Error() string {
+func (e CommonError) Error() string {
 	return e.message
 }
 
-func (e Error) Code() int {
+func (e CommonError) Code() int {
 	return e.code
 }
 
-func (e Error) HttpStatus() int {
+func (e CommonError) HttpStatus() int {
 	return e.httpStatus
 }
 
-func (e Error) Is(err error) bool {
-	if x, ok := errors.Cause(err).(Error); ok {
+func (e CommonError) Is(err error) bool {
+	if x, ok := errors.Cause(err).(ErrorX); ok {
 		return e.Code() == x.Code()
 	}
 	return false
 }
 
-func From(err error) *Error {
+func From(err error) ErrorX {
 	if err == nil {
 		return nil
 	}

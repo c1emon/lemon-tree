@@ -6,10 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
+var _ errorc.Parser = &GormParser{}
+
 type GormParser struct {
 }
 
-func (p *GormParser) Parse(err error) *errorc.Error {
+func (p *GormParser) Parse(err error) errorc.ErrorX {
 	if e, ok := err.(error); ok {
 		switch {
 		case errors.Is(e, gorm.ErrRecordNotFound):

@@ -1,7 +1,7 @@
 package errorc
 
 type Parser interface {
-	Parse(error) *Error
+	Parse(error) ErrorX
 	Support(error) bool
 }
 
