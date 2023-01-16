@@ -22,8 +22,15 @@ func SingletonEchoFactory() *echo.Echo {
 		e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 			LogURI:    true,
 			LogMethod: true,
+			//LogError:    true,
+			//HandleError: true,
 			LogValuesFunc: func(c echo.Context, values middleware.RequestLoggerValues) error {
+
+				if values.Error != nil {
+					return nil
+				}
 				e.Logger.Infof("[%s] %s%s", values.Method, values.URI)
+
 				return nil
 			},
 		}))
