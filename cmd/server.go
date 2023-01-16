@@ -6,7 +6,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/router"
+	"github.com/c1emon/lemontree/controller"
+	"github.com/c1emon/lemontree/log"
+	"github.com/c1emon/lemontree/persister"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -21,10 +23,17 @@ var serverCmd = &cobra.Command{
 	Short: "start lemon tree server",
 	Run: func(cmd *cobra.Command, args []string) {
 		config.SetConfig(port, dbDriverName, dbSourceName)
-		//client := dao.GetEntClient()
-		e := router.SingletonEchoFactory()
-		g := e.Group("/api/v1")
-		router.BuildLogin(g)
+		defer func() {
+			if err := persister.DisConnect(); err != nil {
+				log.GetLogger().Warnf("unable close db: %s", err)
+			}
+		}()
+
+		e := controller.SingletonEchoFactory()
+		e.HTTPErrorHandler = controller.HTTPErrorHandler
+
+		loginG := e.Group("/api/v1/login")
+		controller.BuildLogin(loginG)
 		e.Start(fmt.Sprintf(":%d", port))
 	},
 }
@@ -34,10 +43,10 @@ func init() {
 	serverCmd.PersistentFlags().IntVarP(&port, "port", "p", 8080, "server port")
 	viper.BindPFlag("port", serverCmd.PersistentFlags().Lookup("port"))
 
-	serverCmd.PersistentFlags().StringVar(&dbDriverName, "driver", "mysql", "db driver name")
+	serverCmd.PersistentFlags().StringVar(&dbDriverName, "driver", "postgres", "db driver name")
 	viper.BindPFlag("driver", serverCmd.PersistentFlags().Lookup("driver"))
 
-	serverCmd.PersistentFlags().StringVar(&dbSourceName, "source", "root:123456@(127.0.0.1)/", "db source")
+	serverCmd.PersistentFlags().StringVar(&dbSourceName, "source", "host=localhost port=5432 user=postgres dbname=lemon_tree password=123456", "db source")
 	viper.BindPFlag("source", serverCmd.PersistentFlags().Lookup("source"))
 
 	// Here you will define your flags and configuration settings.
