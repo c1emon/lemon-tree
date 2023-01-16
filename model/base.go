@@ -42,7 +42,7 @@ func (f *BaseField) SetUpdatedTime(t time.Time) {
 }
 
 type BaseRepository[T any] interface {
-	CreateOne(context.Context, *T) (*T, error)
+	CreateOne(context.Context, *T) error
 	GetOneById(context.Context, string) (*T, error)
 	UpdateOneById(context.Context, string, *T) (*T, error)
 	DeleteOneById(context.Context, string) error
