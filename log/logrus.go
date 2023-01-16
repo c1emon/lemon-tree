@@ -18,6 +18,13 @@ func GetLogger() *logrus.Logger {
 
 var cstZone = time.FixedZone("GMT", 8*3600)
 
+var (
+	debugColorFormatter = color.New(color.FgHiYellow).SprintFunc()
+	infoColorFormatter  = color.New(color.FgGreen).SprintFunc()
+	warnColorFormatter  = color.New(color.FgYellow).SprintFunc()
+	errorColorFormatter = color.New(color.FgRed).SprintFunc()
+)
+
 // CostumeLogFormatter Custom log format definition
 type costumeLogFormatter struct{}
 
@@ -26,14 +33,14 @@ func (s *costumeLogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	var colorFormatter func(a ...interface{}) string
 	switch entry.Level {
-	case logrus.DebugLevel:
-		colorFormatter = color.New(color.FgHiYellow).SprintFunc()
+	case logrus.DebugLevel, logrus.TraceLevel:
+		colorFormatter = debugColorFormatter
 	case logrus.InfoLevel:
-		colorFormatter = color.New(color.FgGreen).SprintFunc()
+		colorFormatter = infoColorFormatter
 	case logrus.WarnLevel:
-		colorFormatter = color.New(color.FgYellow).SprintFunc()
+		colorFormatter = warnColorFormatter
 	default:
-		colorFormatter = color.New(color.FgRed).SprintFunc()
+		colorFormatter = errorColorFormatter
 	}
 
 	timestamp := time.Now().In(cstZone).Format("2006-01-02 15:04:05.999")
