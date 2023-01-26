@@ -8,6 +8,7 @@ import (
 func LogrusLogger(logger *logrus.Logger) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+
 		// Start timer
 		//start := time.Now()
 		method := c.Request.Method

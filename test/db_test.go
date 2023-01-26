@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/c1emon/lemontree/errorc"
 	"github.com/c1emon/lemontree/ginx"
 	"github.com/c1emon/lemontree/log"
 	"github.com/gin-gonic/gin"
@@ -14,10 +15,23 @@ func Test_DbCreate(t *testing.T) {
 
 	r := ginx.GetGinEngine()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(400, gin.H{
-			"message": "pong",
-		})
+	r.GET("/ping/:ok", func(c *gin.Context) {
+		//c.JSON(400, gin.H{
+		//	"message": "pong",
+		//})
+		//c.Error(errors.New("errx"))
+		switch c.Param("ok") {
+		case "t":
+
+			c.JSON(200, gin.H{
+				"message": "pong",
+			})
+		case "f":
+			c.Error(errorc.ErrResourceUnavailable)
+		default:
+			panic("panic")
+		}
+		return
 	})
 
 	r.Run(fmt.Sprintf(":8080"))

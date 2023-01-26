@@ -14,7 +14,9 @@ func SingletonGinFactory() *gin.Engine {
 	once.Do(func() {
 
 		g := gin.New()
-		g.Use(LogrusLogger(log.GetLogger()))
+
+		g.Use(LogrusLogger(log.GetLogger()), ErrorHandler(), Recovery(log.GetLogger()))
+
 		e = g
 	})
 
@@ -24,3 +26,9 @@ func SingletonGinFactory() *gin.Engine {
 func GetGinEngine() *gin.Engine {
 	return SingletonGinFactory()
 }
+
+// TODO: split
+//type GinMiddleware interface {
+//	HandleRequest()
+//	HandleResponse()
+//}
