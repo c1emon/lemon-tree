@@ -18,7 +18,17 @@ func LogrusLogger(logger *logrus.Logger) gin.HandlerFunc {
 		c.Next()
 		//latency := time.Now().Sub(start)
 		status := c.Writer.Status()
-		logger.Infof("[%s %d] %s", method, status, uri)
+
+		switch {
+		case status >= 100 && status < 400:
+			logger.Infof("[%s %d] %s", method, status, uri)
+		case status >= 400 && status < 500 && len(c.Errors) > 0:
+			logger.Warnf("[%s %d] %s: %s", method, status, uri, c.Errors[0].Error())
+		case status >= 500 && status < 600 && len(c.Errors) > 0:
+			logger.Errorf("[%s %d] %s: %s", method, status, uri, c.Errors[0].Error())
+		default:
+			logger.Errorf("[%s %d] %s: %s\n%+v", method, status, uri, "unknown status", c.Errors)
+		}
 
 	}
 }

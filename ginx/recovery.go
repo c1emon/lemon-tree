@@ -29,7 +29,7 @@ func Recovery(logger *logrus.Logger) gin.HandlerFunc {
 						}
 					}
 				}
-
+				//TODO: add stack trace
 				logger.Errorf("recovered panic: %+v", err)
 				c.Error(errorc.ErrInternal)
 
