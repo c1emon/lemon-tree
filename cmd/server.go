@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/controller"
+	"github.com/c1emon/lemontree/ginx"
 	"github.com/c1emon/lemontree/log"
 	"github.com/c1emon/lemontree/persister"
 	"github.com/spf13/cobra"
@@ -29,12 +29,11 @@ var serverCmd = &cobra.Command{
 			}
 		}()
 
-		e := controller.SingletonEchoFactory()
-		e.HTTPErrorHandler = controller.HTTPErrorHandler
-
-		loginG := e.Group("/api/v1/login")
-		controller.BuildLogin(loginG)
-		e.Start(fmt.Sprintf(":%d", port))
+		err := ginx.GetGinEngine().Run(fmt.Sprintf(":8080"))
+		if err != nil {
+			log.GetLogger().Errorf("%s", err)
+			return
+		}
 	},
 }
 
