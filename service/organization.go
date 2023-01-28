@@ -1,27 +1,12 @@
 package service
 
-import (
-	"context"
-	"github.com/c1emon/lemontree/model"
-	"github.com/c1emon/lemontree/persister"
-	"github.com/pkg/errors"
-)
+import "github.com/c1emon/lemontree/repository"
 
 type OrganizationService struct {
-	organizationRepository model.OrganizationRepository
+	repository repository.DefaultOrganizationRepository
 }
 
-func NewOrganizationService() *OrganizationService {
-	return &OrganizationService{
-		organizationRepository: &persister.GormOrganizationRepository{},
-	}
-}
-
-func (s *OrganizationService) CreateOrganization() error {
-	err := s.organizationRepository.CreateOne(context.Background(), nil)
-	if err != nil {
-		return errors.WithMessagef(err, "failed create organization")
-	}
-
+func (s *OrganizationService) Create() error {
+	//s.repository.CreateOne()
 	return nil
 }

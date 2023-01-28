@@ -1,5 +1,7 @@
 package model
 
+import "github.com/c1emon/lemontree/repository"
+
 type User struct {
 	BaseField
 	Name           string `json:"name"`
@@ -7,5 +9,5 @@ type User struct {
 }
 
 type UserRepository interface {
-	BaseRepository[User]
+	repository.BaseRepository[User]
 }

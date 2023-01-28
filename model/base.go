@@ -1,7 +1,6 @@
 package model
 
 import (
-	"context"
 	"github.com/lucsky/cuid"
 	"gorm.io/gorm"
 	"time"
@@ -16,9 +15,6 @@ type BaseField struct {
 func (f *BaseField) BeforeCreate(tx *gorm.DB) (err error) {
 	f.Id = cuid.New()
 	return nil
-}
-
-type MetaField struct {
 }
 
 func CreateBaseField() BaseField {
@@ -39,12 +35,4 @@ func (f *BaseField) GetUpdatedTime() time.Time {
 
 func (f *BaseField) SetUpdatedTime(t time.Time) {
 	f.UpdateTime = t
-}
-
-type BaseRepository[T any] interface {
-	CreateOne(context.Context, *T) error
-	GetOneById(context.Context, string) (*T, error)
-	UpdateOneById(context.Context, string, *T) (*T, error)
-	DeleteOneById(context.Context, string) error
-	InitDB() error
 }
