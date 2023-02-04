@@ -1,18 +1,103 @@
 package httpx
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
-type PaginationQuery struct {
-	PaginationParams
+type Order int
+
+const (
+	ASC  Order = 1
+	DESC Order = -1
+)
+
+func (o Order) String() string {
+	if o == ASC {
+		return "ASC"
+	} else {
+		return "DESC"
+	}
 }
 
-func PaginationFromQuery(req *http.Request) *PaginationQuery {
-	paginationQuery := &PaginationQuery{
-		PaginationParams{Size: 10, Total: 100, Page: 0, Sorts: make([]SortItem, 0)},
+func ParserOrder(val any) Order {
+	switch v := val.(type) {
+	case int:
+		if v < 0 {
+			return DESC
+		}
+	case string:
+		if strings.TrimSpace(strings.ToUpper(v)) == DESC.String() {
+			return DESC
+		}
+	case bool:
+		if !v {
+			return DESC
+		}
+	}
+	return ASC
+}
+
+type SortItem struct {
+	Field string
+	Order Order
+}
+
+func (i SortItem) Sql() string {
+	return fmt.Sprintf("%s %s", i.Field, i.Order.String())
+}
+
+type Pageable interface {
+	GetPageSize() int
+	GetPageNum() int
+	GetOffset() int
+	SetTotal(int64)
+	GetSorts() []SortItem
+	Json() string
+}
+
+var _ Pageable = &Pagination{}
+
+type Pagination struct {
+	Size   int        `json:"size,omitempty"`
+	Page   int        `json:"page,omitempty"`
+	Total  int64      `json:"total,omitempty"`
+	Offset int        `json:"-"`
+	Sorts  []SortItem `json:"-"`
+}
+
+func (p *Pagination) GetPageSize() int {
+	return p.Size
+}
+
+func (p *Pagination) GetPageNum() int {
+	return p.Page
+}
+
+func (p *Pagination) GetOffset() int {
+	return (p.Page - 1) * p.Size
+}
+
+func (p *Pagination) SetTotal(total int64) {
+	p.Total = total
+}
+
+func (p *Pagination) GetSorts() []SortItem {
+	return p.Sorts
+}
+
+func (p *Pagination) Json() string {
+	pageJson, _ := json.Marshal(p)
+	return string(pageJson)
+}
+
+func PaginationFromQuery(req *http.Request) *Pagination {
+	paginationQuery := &Pagination{
+		Size: 10, Total: 0, Page: 1, Sorts: make([]SortItem, 0, 3),
 	}
 
 	queries := req.URL.Query()
@@ -28,7 +113,7 @@ func PaginationFromQuery(req *http.Request) *PaginationQuery {
 	}
 	if t := queries.Get("total"); t != "" {
 		if total, err := strconv.Atoi(t); err == nil {
-			paginationQuery.Total = total
+			paginationQuery.Total = int64(total)
 		}
 	}
 	if s := queries.Get("sort"); s != "" {
