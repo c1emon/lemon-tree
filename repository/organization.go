@@ -13,6 +13,7 @@ import (
 type DefaultOrganizationRepository interface {
 	BaseRepository[model.Organization]
 	AddDepartment(context.Context, model.Department) error
+	GetOneByName(context.Context, string) (*model.Organization, error)
 }
 
 // check
@@ -44,6 +45,12 @@ func (r *GormOrganizationRepository) GetOneById(ctx context.Context, id string) 
 	org.Id = id
 	res := r.db.WithContext(ctx).First(org)
 	return org, errors.Wrap(errorc.From(res.Error), fmt.Sprintf("id %s", id))
+}
+
+func (r *GormOrganizationRepository) GetOneByName(ctx context.Context, name string) (*model.Organization, error) {
+	org := &model.Organization{}
+	res := r.db.WithContext(ctx).Where("name = ?", name).First(org)
+	return org, errors.Wrap(errorc.From(res.Error), fmt.Sprintf("name %s", name))
 }
 
 func (r *GormOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *model.Organization) (*model.Organization, error) {
