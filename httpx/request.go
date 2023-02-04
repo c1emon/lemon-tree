@@ -1,7 +1,6 @@
 package httpx
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -57,7 +56,6 @@ type Pageable interface {
 	GetOffset() int
 	SetTotal(int64)
 	GetSorts() []SortItem
-	Json() string
 }
 
 var _ Pageable = &Pagination{}
@@ -88,11 +86,6 @@ func (p *Pagination) SetTotal(total int64) {
 
 func (p *Pagination) GetSorts() []SortItem {
 	return p.Sorts
-}
-
-func (p *Pagination) Json() string {
-	pageJson, _ := json.Marshal(p)
-	return string(pageJson)
 }
 
 func PaginationFromQuery(req *http.Request) *Pagination {
