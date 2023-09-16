@@ -1,38 +1,39 @@
 package model
 
 import (
+	"time"
+
 	"github.com/lucsky/cuid"
 	"gorm.io/gorm"
-	"time"
 )
 
-type BaseField struct {
+type BaseFields struct {
 	Id         string    `json:"id" gorm:"column:id;type:char(25);primaryKey;<-:create"`
 	CreateTime time.Time `json:"create_time" gorm:"column:create_time;autoCreateTime"`
 	UpdateTime time.Time `json:"update_time" gorm:"column:update_time;<-:create;autoUpdateTime"`
 }
 
-func (f *BaseField) BeforeCreate(tx *gorm.DB) (err error) {
+func (f *BaseFields) BeforeCreate(tx *gorm.DB) (err error) {
 	f.Id = cuid.New()
 	return nil
 }
 
-func CreateBaseField() BaseField {
-	return BaseField{Id: cuid.New()}
+func CreateBaseField() BaseFields {
+	return BaseFields{Id: cuid.New()}
 }
 
-func (f *BaseField) GetId() string {
+func (f *BaseFields) GetId() string {
 	return f.Id
 }
 
-func (f *BaseField) GetCreatedTime() time.Time {
+func (f *BaseFields) GetCreatedTime() time.Time {
 	return f.CreateTime
 }
 
-func (f *BaseField) GetUpdatedTime() time.Time {
+func (f *BaseFields) GetUpdatedTime() time.Time {
 	return f.UpdateTime
 }
 
-func (f *BaseField) SetUpdatedTime(t time.Time) {
+func (f *BaseFields) SetUpdatedTime(t time.Time) {
 	f.UpdateTime = t
 }

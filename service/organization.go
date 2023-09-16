@@ -2,14 +2,14 @@ package service
 
 import (
 	"context"
+
 	"github.com/c1emon/lemontree/httpx"
 	"github.com/c1emon/lemontree/model"
-	"github.com/c1emon/lemontree/repository"
 	"github.com/pkg/errors"
 )
 
 type OrganizationService struct {
-	repository repository.DefaultOrganizationRepository
+	repository model.DefaultOrganizationRepository
 }
 
 func (s *OrganizationService) Create(name string) (*model.Organization, error) {
