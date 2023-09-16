@@ -3,8 +3,9 @@ package doauth
 import (
 	"context"
 	"encoding/json"
-	"github.com/ory/fosite"
 	"net/http"
+
+	"github.com/ory/fosite"
 )
 
 type JsonResponseModeHandler struct {
