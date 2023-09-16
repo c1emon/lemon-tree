@@ -1,10 +1,11 @@
-package controller
+package httpx
 
 type Response struct {
 	Code    int    `json:"code"`
 	Message string `json:"message,omitempty"`
 	Error   string `json:"error,omitempty"`
 	Data    any    `json:"data,omitempty"`
+	Pagination
 }
 
 func (r *Response) WithMessage(msg string) *Response {
@@ -19,6 +20,11 @@ func (r *Response) WithError(err string) *Response {
 
 func (r *Response) WithData(data any) *Response {
 	r.Data = data
+	return r
+}
+
+func (r *Response) WithPagination(pagination *Pagination) *Response {
+	r.Pagination = *pagination
 	return r
 }
 
