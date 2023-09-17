@@ -1,10 +1,11 @@
-package log
+package logx
 
 import (
 	"fmt"
-	"github.com/c1emon/lemontree/util"
 	"strings"
 	"time"
+
+	"github.com/c1emon/lemontree/util"
 
 	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"

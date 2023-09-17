@@ -1,9 +1,10 @@
 package ginx
 
 import (
-	"github.com/c1emon/lemontree/log"
-	"github.com/gin-gonic/gin"
 	"sync"
+
+	"github.com/c1emon/lemontree/logx"
+	"github.com/gin-gonic/gin"
 )
 
 var e *gin.Engine
@@ -15,7 +16,7 @@ func SingletonGinFactory() *gin.Engine {
 
 		g := gin.New()
 
-		g.Use(LogrusLogger(log.GetLogger()), ErrorHandler(), Recovery(log.GetLogger()))
+		g.Use(LogrusLogger(logx.GetLogger()), ErrorHandler(), Recovery(logx.GetLogger()))
 
 		e = g
 	})

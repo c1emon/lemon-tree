@@ -1,14 +1,15 @@
-package log
+package logx
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	gl "gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
-	"sync"
-	"time"
 )
 
 var gormLog *gormLogrus

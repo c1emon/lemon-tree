@@ -5,9 +5,10 @@ package cmd
 
 import (
 	"fmt"
+
 	"github.com/c1emon/lemontree/config"
 	"github.com/c1emon/lemontree/ginx"
-	"github.com/c1emon/lemontree/log"
+	"github.com/c1emon/lemontree/logx"
 	"github.com/c1emon/lemontree/persister"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -25,13 +26,13 @@ var serverCmd = &cobra.Command{
 		config.SetConfig(port, dbDriverName, dbSourceName)
 		defer func() {
 			if err := persister.DisConnect(); err != nil {
-				log.GetLogger().Warnf("unable close db: %s", err)
+				logx.GetLogger().Warnf("unable close db: %s", err)
 			}
 		}()
 
 		err := ginx.GetGinEngine().Run(fmt.Sprintf(":8080"))
 		if err != nil {
-			log.GetLogger().Errorf("%s", err)
+			logx.GetLogger().Errorf("%s", err)
 			return
 		}
 	},

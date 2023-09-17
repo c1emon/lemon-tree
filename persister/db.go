@@ -1,15 +1,16 @@
 package persister
 
 import (
+	"strings"
+	"sync"
+
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/log"
+	"github.com/c1emon/lemontree/logx"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"strings"
-	"sync"
 )
 
 var once = sync.Once{}
@@ -61,14 +62,14 @@ func Connect(driverName DriverType, dsn string) {
 		dialector = sqlite.Open(dsn)
 	case Unknown:
 	default:
-		log.GetLogger().Panicf("unknown driver type: %s", driverName)
+		logx.GetLogger().Panicf("unknown driver type: %s", driverName)
 	}
 	db, err := gorm.Open(dialector, &gorm.Config{
-		Logger: log.GetGormLogrusLogger(),
+		Logger: logx.GetGormLogrusLogger(),
 	})
 
 	if err != nil {
-		log.GetLogger().Panicf("unable connect to %s: %s", driverName, err)
+		logx.GetLogger().Panicf("unable connect to %s: %s", driverName, err)
 	}
 	DB = db
 }
