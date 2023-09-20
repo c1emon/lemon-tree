@@ -111,9 +111,113 @@ func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID string, 
 	return nil
 }
 
+// createRefreshToken will store a refresh_token in-memory based on the provided information
+func (s *Storage) createRefreshToken(accessToken *Token, amr []string, authTime time.Time) (string, error) {
+	// s.lock.Lock()
+	// defer s.lock.Unlock()
+	token := &RefreshToken{
+		ID:            accessToken.RefreshTokenID,
+		Token:         accessToken.RefreshTokenID,
+		AuthTime:      authTime,
+		AMR:           amr,
+		ApplicationID: accessToken.ApplicationID,
+		UserID:        accessToken.Subject,
+		Audience:      accessToken.Audience,
+		Expiration:    time.Now().Add(5 * time.Hour),
+		Scopes:        accessToken.Scopes,
+	}
+	s.refreshTokens[token.ID] = token
+	return token.Token, nil
+}
+
+// renewRefreshToken checks the provided refresh_token and creates a new one based on the current
+func (s *Storage) renewRefreshToken(currentRefreshToken string) (string, string, error) {
+	// s.lock.Lock()
+	// defer s.lock.Unlock()
+	refreshToken, ok := s.refreshTokens[currentRefreshToken]
+	if !ok {
+		return "", "", fmt.Errorf("invalid refresh token")
+	}
+	// deletes the refresh token and all access tokens which were issued based on this refresh token
+	delete(s.refreshTokens, currentRefreshToken)
+	for _, token := range s.tokens {
+		if token.RefreshTokenID == currentRefreshToken {
+			delete(s.tokens, token.ID)
+			break
+		}
+	}
+	// creates a new refresh token based on the current one
+	token := uuid.NewString()
+	refreshToken.Token = token
+	refreshToken.ID = token
+	s.refreshTokens[token] = refreshToken
+	return token, refreshToken.ID, nil
+}
+
 // CreateAccessAndRefreshTokens implements op.Storage.
 func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.TokenRequest, currentRefreshToken string) (accessTokenID string, newRefreshTokenID string, expiration time.Time, err error) {
-	panic("unimplemented")
+	// generate tokens via token exchange flow if request is relevant
+	if teReq, ok := request.(op.TokenExchangeRequest); ok {
+		applicationID := teReq.GetClientID()
+		authTime := teReq.GetAuthTime()
+
+		refreshTokenID := uuid.NewString()
+		accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), request.GetAudience(), request.GetScopes())
+		if err != nil {
+			return "", "", time.Time{}, err
+		}
+
+		refreshToken, err := s.createRefreshToken(accessToken, nil, authTime)
+		if err != nil {
+			return "", "", time.Time{}, err
+		}
+
+		return accessToken.ID, refreshToken, accessToken.Expiration, nil
+	}
+
+	var applicationID string
+	var authTime time.Time
+	var amr []string
+	switch req := request.(type) {
+	case *AuthRequest:
+		applicationID = req.ApplicationID
+		authTime = req.authTime
+		amr = req.GetAMR()
+	case *RefreshTokenRequest:
+		applicationID = req.ApplicationID
+		authTime = req.AuthTime
+		amr = req.AMR
+	default:
+		applicationID = ""
+		authTime = time.Time{}
+		amr = nil
+	}
+
+	// if currentRefreshToken is empty (Code Flow) we will have to create a new refresh token
+	if currentRefreshToken == "" {
+		refreshTokenID := uuid.NewString()
+		accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), request.GetAudience(), request.GetScopes())
+		if err != nil {
+			return "", "", time.Time{}, err
+		}
+		refreshToken, err := s.createRefreshToken(accessToken, amr, authTime)
+		if err != nil {
+			return "", "", time.Time{}, err
+		}
+		return accessToken.ID, refreshToken, accessToken.Expiration, nil
+	}
+
+	// if we get here, the currentRefreshToken was not empty, so the call is a refresh token request
+	// we therefore will have to check the currentRefreshToken and renew the refresh token
+	refreshToken, refreshTokenID, err := s.renewRefreshToken(currentRefreshToken)
+	if err != nil {
+		return "", "", time.Time{}, err
+	}
+	accessToken, err := s.accessToken(applicationID, refreshTokenID, request.GetSubject(), request.GetAudience(), request.GetScopes())
+	if err != nil {
+		return "", "", time.Time{}, err
+	}
+	return accessToken.ID, refreshToken, accessToken.Expiration, nil
 }
 
 // CreateAccessToken implements op.Storage.

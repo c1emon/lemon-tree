@@ -4,11 +4,17 @@ import (
 	"crypto/sha256"
 	"net/http"
 
+	"github.com/c1emon/lemontree/ginx"
 	"github.com/c1emon/lemontree/logx"
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
 	"github.com/zitadel/oidc/v2/pkg/op"
 	"golang.org/x/text/language"
 )
+
+func start() {
+
+}
 
 // SetupServer creates an OIDC server with Issuer=http://localhost:<port>
 // Use one of the pre-made clients in storage/clients.go or register a new one.
@@ -50,7 +56,10 @@ func SetupServer(issuer string, storage *Storage, extraOptions ...op.Option) *mu
 	//
 	// if your issuer ends with a path (e.g. http://localhost:9998/custom/path/),
 	// then you would have to set the path prefix (/custom/path/)
-	router.PathPrefix("/").Handler(provider.HttpHandler())
+
+	ginx.GetGinEngine()
+
+	gin.WrapH(provider.HttpHandler())
 
 	return router
 }

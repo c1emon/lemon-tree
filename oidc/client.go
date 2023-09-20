@@ -30,83 +30,87 @@ type Client struct {
 }
 
 // AccessTokenType implements op.Client.
-func (*Client) AccessTokenType() op.AccessTokenType {
-	panic("unimplemented")
+func (c *Client) AccessTokenType() op.AccessTokenType {
+	return c.accessTokenType
 }
 
 // ApplicationType implements op.Client.
-func (*Client) ApplicationType() op.ApplicationType {
-	panic("unimplemented")
+func (c *Client) ApplicationType() op.ApplicationType {
+	return c.applicationType
 }
 
 // AuthMethod implements op.Client.
-func (*Client) AuthMethod() oidc.AuthMethod {
-	panic("unimplemented")
+func (c *Client) AuthMethod() oidc.AuthMethod {
+	return c.authMethod
 }
 
 // ClockSkew implements op.Client.
-func (*Client) ClockSkew() time.Duration {
-	panic("unimplemented")
+func (c *Client) ClockSkew() time.Duration {
+	return c.clockSkew
 }
 
 // DevMode implements op.Client.
-func (*Client) DevMode() bool {
-	panic("unimplemented")
+func (c *Client) DevMode() bool {
+	return c.devMode
 }
 
 // GetID implements op.Client.
-func (*Client) GetID() string {
-	panic("unimplemented")
+func (c *Client) GetID() string {
+	return c.Id
 }
 
 // GrantTypes implements op.Client.
-func (*Client) GrantTypes() []oidc.GrantType {
-	panic("unimplemented")
+func (c *Client) GrantTypes() []oidc.GrantType {
+	return c.grantTypes
 }
 
 // IDTokenLifetime implements op.Client.
-func (*Client) IDTokenLifetime() time.Duration {
-	panic("unimplemented")
+func (c *Client) IDTokenLifetime() time.Duration {
+	return 1 * time.Hour
 }
 
 // IDTokenUserinfoClaimsAssertion implements op.Client.
-func (*Client) IDTokenUserinfoClaimsAssertion() bool {
-	panic("unimplemented")
+func (c *Client) IDTokenUserinfoClaimsAssertion() bool {
+	return c.idTokenUserinfoClaimsAssertion
 }
 
 // IsScopeAllowed implements op.Client.
-func (*Client) IsScopeAllowed(scope string) bool {
-	panic("unimplemented")
+func (c *Client) IsScopeAllowed(scope string) bool {
+	return scope == "custom_scope"
 }
 
 // LoginURL implements op.Client.
-func (*Client) LoginURL(string) string {
-	panic("unimplemented")
+func (c *Client) LoginURL(id string) string {
+	return c.loginURL(id)
 }
 
 // PostLogoutRedirectURIs implements op.Client.
-func (*Client) PostLogoutRedirectURIs() []string {
-	panic("unimplemented")
+func (c *Client) PostLogoutRedirectURIs() []string {
+	return []string{}
 }
 
 // RedirectURIs implements op.Client.
-func (*Client) RedirectURIs() []string {
-	panic("unimplemented")
+func (c *Client) RedirectURIs() []string {
+	return c.redirectURIs
 }
 
 // ResponseTypes implements op.Client.
-func (*Client) ResponseTypes() []oidc.ResponseType {
-	panic("unimplemented")
+func (c *Client) ResponseTypes() []oidc.ResponseType {
+	return c.responseTypes
 }
 
 // RestrictAdditionalAccessTokenScopes implements op.Client.
-func (*Client) RestrictAdditionalAccessTokenScopes() func(scopes []string) []string {
-	panic("unimplemented")
+func (c *Client) RestrictAdditionalAccessTokenScopes() func(scopes []string) []string {
+	return func(scopes []string) []string {
+		return scopes
+	}
 }
 
 // RestrictAdditionalIdTokenScopes implements op.Client.
-func (*Client) RestrictAdditionalIdTokenScopes() func(scopes []string) []string {
-	panic("unimplemented")
+func (c *Client) RestrictAdditionalIdTokenScopes() func(scopes []string) []string {
+	return func(scopes []string) []string {
+		return scopes
+	}
 }
 
 type warpToRedirectGlobs struct {

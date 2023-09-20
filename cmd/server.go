@@ -30,7 +30,7 @@ var serverCmd = &cobra.Command{
 			}
 		}()
 
-		err := ginx.GetGinEngine().Run(fmt.Sprintf(":8080"))
+		err := ginx.GetGinEngine().Run(fmt.Sprintf(":%d", port))
 		if err != nil {
 			logx.GetLogger().Errorf("%s", err)
 			return
