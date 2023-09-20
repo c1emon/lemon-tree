@@ -41,15 +41,19 @@ func (ar *AuthRequest) GetID() string {
 }
 
 func (ar *AuthRequest) GetACR() string {
-	panic("not implemented") // TODO: Implement
+	return ""
 }
 
 func (ar *AuthRequest) GetAMR() []string {
-	panic("not implemented") // TODO: Implement
+	// this example only uses password for authentication
+	if ar.done {
+		return []string{"pwd"}
+	}
+	return nil
 }
 
 func (ar *AuthRequest) GetAudience() []string {
-	panic("not implemented") // TODO: Implement
+	return []string{ar.ApplicationID} // this example will always just use the client_id as audience
 }
 
 func (ar *AuthRequest) GetAuthTime() time.Time {
@@ -57,7 +61,7 @@ func (ar *AuthRequest) GetAuthTime() time.Time {
 }
 
 func (ar *AuthRequest) GetClientID() string {
-	panic("not implemented") // TODO: Implement
+	return ar.ApplicationID
 }
 
 func (ar *AuthRequest) GetCodeChallenge() *oidc.CodeChallenge {
@@ -88,7 +92,7 @@ func (ar *AuthRequest) GetResponseType() oidc.ResponseType {
 }
 
 func (ar *AuthRequest) GetResponseMode() oidc.ResponseMode {
-	panic("not implemented") // TODO: Implement
+	return ""
 }
 
 func (ar *AuthRequest) GetScopes() []string {

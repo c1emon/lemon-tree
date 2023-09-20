@@ -12,10 +12,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-func start() {
-
-}
-
 // SetupServer creates an OIDC server with Issuer=http://localhost:<port>
 // Use one of the pre-made clients in storage/clients.go or register a new one.
 func SetupServer(issuer string, storage *Storage, extraOptions ...op.Option) *mux.Router {

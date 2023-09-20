@@ -3,6 +3,7 @@ package oidc
 import (
 	"context"
 	"crypto/rsa"
+	"errors"
 	"fmt"
 	"time"
 
@@ -54,6 +55,30 @@ func (s *signingKey) ID() string {
 	return s.id
 }
 
+type publicKey struct {
+	signingKey
+}
+
+func (s *publicKey) ID() string {
+	return s.id
+}
+
+func (s *publicKey) Algorithm() jose.SignatureAlgorithm {
+	return s.algorithm
+}
+
+func (s *publicKey) Use() string {
+	return "sig"
+}
+
+func (s *publicKey) Key() interface{} {
+	return &s.key.PublicKey
+}
+
+type Service struct {
+	keys map[string]*rsa.PublicKey
+}
+
 type Storage struct {
 	authRequests  map[string]*AuthRequest
 	codes         map[string]string
@@ -61,6 +86,8 @@ type Storage struct {
 	clients       map[string]*Client
 	refreshTokens map[string]*RefreshToken
 	signingKey    signingKey
+	serviceUsers  map[string]*Client
+	services      map[string]Service
 }
 
 func NewStorage() *Storage {
@@ -68,13 +95,30 @@ func NewStorage() *Storage {
 }
 
 // ClientCredentials implements op.ClientCredentialsStorage.
-func (*Storage) ClientCredentials(ctx context.Context, clientID string, clientSecret string) (op.Client, error) {
-	panic("unimplemented")
+func (s *Storage) ClientCredentials(ctx context.Context, clientID string, clientSecret string) (op.Client, error) {
+	client, ok := s.serviceUsers[clientID]
+	if !ok {
+		return nil, errors.New("wrong service user or password")
+	}
+	if client.secret != clientSecret {
+		return nil, errors.New("wrong service user or password")
+	}
+
+	return client, nil
 }
 
 // ClientCredentialsTokenRequest implements op.ClientCredentialsStorage.
 func (s *Storage) ClientCredentialsTokenRequest(ctx context.Context, clientID string, scopes []string) (op.TokenRequest, error) {
-	panic("unimplemented")
+	client, ok := s.serviceUsers[clientID]
+	if !ok {
+		return nil, errors.New("wrong service user or password")
+	}
+
+	return &oidc.JWTTokenRequest{
+		Subject:  client.Id,
+		Audience: []string{clientID},
+		Scopes:   scopes,
+	}, nil
 }
 
 // AuthRequestByCode implements op.Storage.
@@ -291,7 +335,19 @@ func (s *Storage) GetClientByClientID(ctx context.Context, clientID string) (op.
 
 // GetKeyByIDAndClientID implements op.Storage.
 func (s *Storage) GetKeyByIDAndClientID(ctx context.Context, keyID string, clientID string) (*jose.JSONWebKey, error) {
-	panic("unimplemented")
+	service, ok := s.services[clientID]
+	if !ok {
+		return nil, fmt.Errorf("clientID not found")
+	}
+	key, ok := service.keys[keyID]
+	if !ok {
+		return nil, fmt.Errorf("key not found")
+	}
+	return &jose.JSONWebKey{
+		KeyID: keyID,
+		Use:   "sig",
+		Key:   key,
+	}, nil
 }
 
 // GetPrivateClaimsFromScopes implements op.Storage.
@@ -318,7 +374,7 @@ func (s *Storage) Health(ctx context.Context) error {
 
 // KeySet implements op.Storage.
 func (s *Storage) KeySet(ctx context.Context) ([]op.Key, error) {
-	panic("unimplemented")
+	return []op.Key{&publicKey{s.signingKey}}, nil
 }
 
 // RevokeToken implements op.Storage.
