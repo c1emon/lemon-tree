@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/logx"
+	"github.com/c1emon/lemontree/pkg/logx"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"

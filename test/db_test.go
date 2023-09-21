@@ -2,10 +2,11 @@ package test
 
 import (
 	"fmt"
-	"github.com/c1emon/lemontree/ginx"
-	"github.com/c1emon/lemontree/httpx"
-	"github.com/gin-gonic/gin"
 	"testing"
+
+	"github.com/c1emon/lemontree/pkg/ginx"
+	"github.com/c1emon/lemontree/pkg/httpx"
+	"github.com/gin-gonic/gin"
 )
 
 func SetPage(pageable httpx.Pageable) {

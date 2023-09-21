@@ -1,4 +1,4 @@
-package oidc
+package server
 
 import (
 	"time"
@@ -14,7 +14,8 @@ var (
 
 type Client struct {
 	model.BaseFields
-	secret                         string
+	Name                           string `json:"name" gorm:"column:name;type:varchar(256);not null"`
+	Secret                         string `json:"secret" gorm:"column:secret;type:varchar(256);not null"`
 	redirectURIs                   []string
 	applicationType                op.ApplicationType
 	authMethod                     oidc.AuthMethod

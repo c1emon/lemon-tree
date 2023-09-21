@@ -1,11 +1,13 @@
-package model
+package org
+
+import "github.com/c1emon/lemontree/model"
 
 type Department struct {
-	BaseFields
+	model.BaseFields
 	Name           string `json:"name"`
 	OrganizationId string `json:"oid"`
 }
 
 type DepartmentRepository interface {
-	BaseRepository[Department]
+	model.BaseRepository[Department]
 }

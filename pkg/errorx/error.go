@@ -1,4 +1,4 @@
-package errorc
+package errorx
 
 import (
 	"github.com/pkg/errors"

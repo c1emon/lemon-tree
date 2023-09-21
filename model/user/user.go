@@ -1,11 +1,13 @@
 package model
 
+import "github.com/c1emon/lemontree/model"
+
 type User struct {
-	BaseFields
+	model.BaseFields
 	Name           string `json:"name"`
 	OrganizationId string `json:"oid"`
 }
 
 type UserRepository interface {
-	BaseRepository[User]
+	model.BaseRepository[User]
 }

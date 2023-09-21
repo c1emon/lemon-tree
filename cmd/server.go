@@ -7,9 +7,9 @@ import (
 	"fmt"
 
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/ginx"
-	"github.com/c1emon/lemontree/logx"
-	"github.com/c1emon/lemontree/persister"
+	"github.com/c1emon/lemontree/pkg/ginx"
+	"github.com/c1emon/lemontree/pkg/logx"
+	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

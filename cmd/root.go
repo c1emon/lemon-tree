@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/c1emon/lemontree/logx"
+	"github.com/c1emon/lemontree/pkg/logx"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

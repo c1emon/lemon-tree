@@ -4,16 +4,16 @@ import (
 	"context"
 
 	"github.com/c1emon/lemontree/httpx"
-	"github.com/c1emon/lemontree/model"
+	"github.com/c1emon/lemontree/model/org"
 	"github.com/pkg/errors"
 )
 
 type OrganizationService struct {
-	repository model.DefaultOrganizationRepository
+	repository org.DefaultOrganizationRepository
 }
 
-func (s *OrganizationService) Create(name string) (*model.Organization, error) {
-	err := s.repository.CreateOne(context.Background(), &model.Organization{Name: name})
+func (s *OrganizationService) Create(name string) (*org.Organization, error) {
+	err := s.repository.CreateOne(context.Background(), &org.Organization{Name: name})
 	if err != nil {
 		return nil, errors.WithMessage(err, "name "+name)
 	}
@@ -21,19 +21,19 @@ func (s *OrganizationService) Create(name string) (*model.Organization, error) {
 	return org, errors.WithMessage(err, "name "+name)
 }
 
-func (s *OrganizationService) GetById(id string) (*model.Organization, error) {
+func (s *OrganizationService) GetById(id string) (*org.Organization, error) {
 
 	org, err := s.repository.GetOneById(context.Background(), id)
 	return org, errors.WithMessage(err, "organization")
 }
 
-func (s *OrganizationService) GetByName(name string) (*model.Organization, error) {
+func (s *OrganizationService) GetByName(name string) (*org.Organization, error) {
 
 	org, err := s.repository.GetOneByName(context.Background(), name)
 	return org, errors.WithMessage(err, "organization")
 }
 
-func (s *OrganizationService) GetByNameAll(pageable httpx.Pageable, name string) []model.Organization {
+func (s *OrganizationService) GetByNameAll(pageable httpx.Pageable, name string) []org.Organization {
 
 	return s.repository.GetAllByName(context.Background(), pageable, name)
 }

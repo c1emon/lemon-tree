@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/c1emon/lemontree/util"
+	"github.com/c1emon/lemontree/pkg/util"
 
 	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"

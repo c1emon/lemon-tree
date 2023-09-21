@@ -2,8 +2,8 @@ package test
 
 import (
 	"github.com/c1emon/lemontree/config"
-	"github.com/c1emon/lemontree/logx"
-	"github.com/c1emon/lemontree/persister"
+	"github.com/c1emon/lemontree/pkg/logx"
+	"github.com/c1emon/lemontree/pkg/persister"
 )
 
 func start() {

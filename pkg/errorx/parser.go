@@ -1,4 +1,4 @@
-package errorc
+package errorx
 
 type Parser interface {
 	Parse(error) ErrorX

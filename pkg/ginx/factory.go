@@ -3,7 +3,7 @@ package ginx
 import (
 	"sync"
 
-	"github.com/c1emon/lemontree/logx"
+	"github.com/c1emon/lemontree/pkg/logx"
 	"github.com/gin-gonic/gin"
 )
 

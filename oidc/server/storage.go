@@ -100,7 +100,7 @@ func (s *Storage) ClientCredentials(ctx context.Context, clientID string, client
 	if !ok {
 		return nil, errors.New("wrong service user or password")
 	}
-	if client.secret != clientSecret {
+	if client.Secret != clientSecret {
 		return nil, errors.New("wrong service user or password")
 	}
 
@@ -149,7 +149,7 @@ func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID string, 
 	}
 	// for this example we directly check the secret
 	// obviously you would not have the secret in plain text, but rather hashed and salted (e.g. using bcrypt)
-	if client.secret != clientSecret {
+	if client.Secret != clientSecret {
 		return fmt.Errorf("invalid secret")
 	}
 	return nil

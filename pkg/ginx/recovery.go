@@ -1,13 +1,14 @@
 package ginx
 
 import (
-	"github.com/c1emon/lemontree/errorc"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"net"
 	"os"
 	"strings"
+
+	"github.com/c1emon/lemontree/pkg/errorx"
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 func Recovery(logger *logrus.Logger) gin.HandlerFunc {
@@ -31,7 +32,7 @@ func Recovery(logger *logrus.Logger) gin.HandlerFunc {
 				}
 				//TODO: add stack trace
 				logger.Errorf("recovered panic: %+v", err)
-				c.Error(errorc.ErrInternal)
+				c.Error(errorx.ErrInternal)
 
 			}
 

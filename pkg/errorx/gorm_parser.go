@@ -1,24 +1,24 @@
-package parser
+package errorx
 
 import (
 	"errors"
-	"github.com/c1emon/lemontree/errorc"
+
 	"gorm.io/gorm"
 )
 
-var _ errorc.Parser = &GormParser{}
+var _ Parser = &GormParser{}
 
 type GormParser struct {
 }
 
-func (p *GormParser) Parse(err error) errorc.ErrorX {
+func (p *GormParser) Parse(err error) ErrorX {
 	if e, ok := err.(error); ok {
 		switch {
 		case errors.Is(e, gorm.ErrRecordNotFound):
-			return errorc.ErrResourceNotFound
+			return ErrResourceNotFound
 		}
 	}
-	return errorc.ErrUnknown
+	return ErrUnknown
 }
 
 func (p *GormParser) Support(err error) bool {
@@ -31,6 +31,6 @@ func (p *GormParser) Support(err error) bool {
 
 func NewGormParser() *GormParser {
 	p := &GormParser{}
-	errorc.Parsers.Add("gorm", p)
+	Parsers.Add("gorm", p)
 	return p
 }
