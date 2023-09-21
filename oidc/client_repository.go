@@ -1,20 +1,19 @@
-package server
+package oidc
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/c1emon/lemontree/errorc"
-	"github.com/c1emon/lemontree/httpx"
 	"github.com/c1emon/lemontree/model"
-	oidc "github.com/c1emon/lemontree/oidc/server"
-	"github.com/c1emon/lemontree/persister"
+	"github.com/c1emon/lemontree/pkg/errorx"
+	"github.com/c1emon/lemontree/pkg/httpx"
+	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
 type DefaultClientRepository interface {
-	model.BaseRepository[oidc.Client]
+	model.BaseRepository[Client]
 	GetOneByName(context.Context, string) (*Client, error)
 	GetAllByName(context.Context, httpx.Pageable, string) []Client
 }
@@ -36,7 +35,7 @@ func NewGormClientRepository() *GormClientRepository {
 // CreateOne implements DefaultClientRepository.
 func (r *GormClientRepository) CreateOne(ctx context.Context, client *Client) error {
 	err := r.db.WithContext(ctx).Create(client).Error
-	return errors.Wrap(errorc.From(err), fmt.Sprintf("oidc client %s", client.Id))
+	return errors.Wrap(errorx.From(err), fmt.Sprintf("oidc client %s", client.Id))
 }
 
 // DeleteOneById implements DefaultClientRepository.

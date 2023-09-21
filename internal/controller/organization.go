@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"github.com/c1emon/lemontree/internal/service"
 	"github.com/c1emon/lemontree/pkg/httpx"
-	"github.com/c1emon/lemontree/service"
 	"github.com/gin-gonic/gin"
 )
 

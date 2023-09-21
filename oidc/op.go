@@ -1,11 +1,11 @@
-package server
+package oidc
 
 import (
 	"crypto/sha256"
 	"net/http"
 
-	"github.com/c1emon/lemontree/ginx"
-	"github.com/c1emon/lemontree/logx"
+	"github.com/c1emon/lemontree/pkg/ginx"
+	"github.com/c1emon/lemontree/pkg/logx"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/mux"
 	"github.com/zitadel/oidc/v2/pkg/op"
