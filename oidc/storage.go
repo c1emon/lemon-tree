@@ -286,7 +286,7 @@ func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest
 func (s *Storage) CreateAuthRequest(ctx context.Context, authReq *oidc.AuthRequest, userID string) (op.AuthRequest, error) {
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
-
+	// 查看
 	if len(authReq.Prompt) == 1 && authReq.Prompt[0] == "none" {
 		// With prompt=none, there is no way for the user to log in
 		// so return error right away.
@@ -296,7 +296,7 @@ func (s *Storage) CreateAuthRequest(ctx context.Context, authReq *oidc.AuthReque
 	// typically, you'll fill your storage / storage model with the information of the passed object
 	request := authRequestToInternal(authReq, userID)
 
-	// you'll also have to create a unique id for the request (this might be done by your database; we'll use a uuid)
+	// 生成本次登陆请求的id
 	request.SetID(uuid.NewString())
 
 	fmt.Printf("create auth req: %s", request.GetID())

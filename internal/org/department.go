@@ -1,13 +1,13 @@
 package org
 
-import "github.com/c1emon/lemontree/model"
+import "github.com/c1emon/lemontree/pkg/gormx"
 
 type Department struct {
-	model.BaseFields
+	gormx.BaseFields
 	Name           string `json:"name"`
 	OrganizationId string `json:"oid"`
 }
 
 type DepartmentRepository interface {
-	model.BaseRepository[Department]
+	gormx.BaseRepository[Department]
 }

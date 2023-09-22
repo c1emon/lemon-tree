@@ -3,7 +3,7 @@ package oidc
 import (
 	"time"
 
-	"github.com/c1emon/lemontree/model"
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
 	"github.com/zitadel/oidc/v2/pkg/op"
 )
@@ -13,7 +13,7 @@ var (
 )
 
 type Client struct {
-	model.BaseFields
+	gormx.BaseFields
 	Name                           string `json:"name" gorm:"column:name;type:varchar(256);not null"`
 	Secret                         string `json:"secret" gorm:"column:secret;type:varchar(256);not null"`
 	redirectURIs                   []string
@@ -80,6 +80,7 @@ func (c *Client) IsScopeAllowed(scope string) bool {
 	return scope == "custom_scope"
 }
 
+// 重定向到登陆页面
 // LoginURL implements op.Client.
 func (c *Client) LoginURL(id string) string {
 	return c.loginURL(id)

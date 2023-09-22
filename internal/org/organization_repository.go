@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/c1emon/lemontree/model"
 	"github.com/c1emon/lemontree/pkg/errorx"
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/httpx"
 	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/pkg/errors"
@@ -13,7 +13,7 @@ import (
 )
 
 type DefaultOrganizationRepository interface {
-	model.BaseRepository[Organization]
+	gormx.BaseRepository[Organization]
 	AddDepartment(context.Context, Department) error
 	GetOneByName(context.Context, string) (*Organization, error)
 	GetAllByName(context.Context, httpx.Pageable, string) []Organization
@@ -85,7 +85,7 @@ func (r *GormOrganizationRepository) GetAllByName(ctx context.Context, pageable 
 func (r *GormOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *Organization) error {
 
 	err := r.db.WithContext(ctx).
-		Model(&Organization{BaseFields: model.BaseFields{Id: id}}).
+		Model(&Organization{BaseFields: gormx.BaseFields{Id: id}}).
 		Updates(*org).Error
 	if err != nil {
 		return errors.Wrap(errorx.From(err), fmt.Sprintf("id %s", id))
@@ -96,7 +96,7 @@ func (r *GormOrganizationRepository) UpdateOneById(ctx context.Context, id strin
 
 func (r *GormOrganizationRepository) DeleteOneById(ctx context.Context, id string) error {
 	err := r.db.WithContext(ctx).
-		Delete(&Organization{BaseFields: model.BaseFields{Id: id}}).Error
+		Delete(&Organization{BaseFields: gormx.BaseFields{Id: id}}).Error
 	return errors.Wrap(errorx.From(err), fmt.Sprintf("id %s", id))
 }
 

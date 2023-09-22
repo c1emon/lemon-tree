@@ -1,4 +1,4 @@
-package model
+package gormx
 
 import (
 	"time"

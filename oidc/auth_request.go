@@ -3,7 +3,7 @@ package oidc
 import (
 	"time"
 
-	"github.com/c1emon/lemontree/model"
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
 	"golang.org/x/text/language"
 )
@@ -14,7 +14,7 @@ type OIDCCodeChallenge struct {
 }
 
 type AuthRequest struct {
-	model.BaseFields
+	gormx.BaseFields
 	ApplicationID string
 	CallbackURI   string
 	TransferState string
@@ -136,7 +136,7 @@ func MaxAgeToInternal(maxAge *uint) *time.Duration {
 func authRequestToInternal(authReq *oidc.AuthRequest, userID string) *AuthRequest {
 	now := time.Now()
 	return &AuthRequest{
-		BaseFields: model.BaseFields{
+		BaseFields: gormx.BaseFields{
 			CreateTime: now,
 			UpdateTime: now,
 		},

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/c1emon/lemontree/model/org"
+	"github.com/c1emon/lemontree/internal/org"
 	"github.com/c1emon/lemontree/pkg/httpx"
 	"github.com/pkg/errors"
 )

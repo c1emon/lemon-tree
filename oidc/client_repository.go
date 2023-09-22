@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/c1emon/lemontree/model"
 	"github.com/c1emon/lemontree/pkg/errorx"
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/httpx"
 	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/pkg/errors"
@@ -13,7 +13,7 @@ import (
 )
 
 type DefaultClientRepository interface {
-	model.BaseRepository[Client]
+	gormx.BaseRepository[Client]
 	GetOneByName(context.Context, string) (*Client, error)
 	GetAllByName(context.Context, httpx.Pageable, string) []Client
 }
