@@ -14,12 +14,12 @@ var (
 
 type Client struct {
 	gormx.BaseFields
-	Name                           string `json:"name" gorm:"column:name;type:varchar(256);not null"`
-	Secret                         string `json:"secret" gorm:"column:secret;type:varchar(256);not null"`
-	redirectURIs                   []string
+	Name                           string   `json:"name" gorm:"column:name;type:varchar(256);not null"`
+	Secret                         string   `json:"secret" gorm:"column:secret;type:varchar(256);not null"`
+	redirectURIs                   []string // 回调 回到原请求app
 	applicationType                op.ApplicationType
 	authMethod                     oidc.AuthMethod
-	loginURL                       func(string) string
+	loginURL                       func(string) string // 登陆页面地址
 	responseTypes                  []oidc.ResponseType
 	grantTypes                     []oidc.GrantType
 	accessTokenType                op.AccessTokenType
