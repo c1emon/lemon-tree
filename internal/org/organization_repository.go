@@ -12,51 +12,40 @@ import (
 	"gorm.io/gorm"
 )
 
-type DefaultOrganizationRepository interface {
-	gormx.BaseRepository[Organization]
-	AddDepartment(context.Context, Department) error
-	GetOneByName(context.Context, string) (*Organization, error)
-	GetAllByName(context.Context, httpx.Pageable, string) []Organization
-}
-
 // check
-var _ DefaultOrganizationRepository = &GormOrganizationRepository{}
+var _ OrganizationRepository = &gormOrganizationRepository{}
 
-type GormOrganizationRepository struct {
+type gormOrganizationRepository struct {
 	db *gorm.DB
 }
 
-func NewGormOrganizationRepository() *GormOrganizationRepository {
-	r := &GormOrganizationRepository{
+func NewGormOrganizationRepository() *gormOrganizationRepository {
+	r := &gormOrganizationRepository{
 		db: persister.GetDB(),
 	}
 	_ = r.InitDB()
 	return r
 }
 
-func (r *GormOrganizationRepository) AddDepartment(ctx context.Context, department Department) error {
-	return nil
-}
-
-func (r *GormOrganizationRepository) CreateOne(ctx context.Context, org *Organization) error {
+func (r *gormOrganizationRepository) CreateOne(ctx context.Context, org *Organization) error {
 	err := r.db.WithContext(ctx).Create(org).Error
 	return errors.Wrap(errorx.From(err), fmt.Sprintf("name %s", org.Name))
 }
 
-func (r *GormOrganizationRepository) GetOneById(ctx context.Context, id string) (*Organization, error) {
+func (r *gormOrganizationRepository) GetOneById(ctx context.Context, id string) (*Organization, error) {
 	org := &Organization{}
 	org.Id = id
 	res := r.db.WithContext(ctx).First(org)
 	return org, errors.Wrap(errorx.From(res.Error), fmt.Sprintf("id %s", id))
 }
 
-func (r *GormOrganizationRepository) GetOneByName(ctx context.Context, name string) (*Organization, error) {
+func (r *gormOrganizationRepository) GetOneByName(ctx context.Context, name string) (*Organization, error) {
 	org := &Organization{}
 	res := r.db.WithContext(ctx).Where("name = ?", name).First(org)
 	return org, errors.Wrap(errorx.From(res.Error), fmt.Sprintf("name %s", name))
 }
 
-func (r *GormOrganizationRepository) GetAllByName(ctx context.Context, pageable httpx.Pageable, name string) []Organization {
+func (r *gormOrganizationRepository) GetAllByName(ctx context.Context, pageable httpx.Pageable, name string) []Organization {
 
 	var orgs []Organization
 	var total int64 = 0
@@ -82,7 +71,7 @@ func (r *GormOrganizationRepository) GetAllByName(ctx context.Context, pageable 
 	return orgs
 }
 
-func (r *GormOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *Organization) error {
+func (r *gormOrganizationRepository) UpdateOneById(ctx context.Context, id string, org *Organization) error {
 
 	err := r.db.WithContext(ctx).
 		Model(&Organization{BaseFields: gormx.BaseFields{Id: id}}).
@@ -94,12 +83,12 @@ func (r *GormOrganizationRepository) UpdateOneById(ctx context.Context, id strin
 	return nil
 }
 
-func (r *GormOrganizationRepository) DeleteOneById(ctx context.Context, id string) error {
+func (r *gormOrganizationRepository) DeleteOneById(ctx context.Context, id string) error {
 	err := r.db.WithContext(ctx).
 		Delete(&Organization{BaseFields: gormx.BaseFields{Id: id}}).Error
 	return errors.Wrap(errorx.From(err), fmt.Sprintf("id %s", id))
 }
 
-func (r *GormOrganizationRepository) InitDB() error {
+func (r *gormOrganizationRepository) InitDB() error {
 	return r.db.AutoMigrate(&Organization{})
 }

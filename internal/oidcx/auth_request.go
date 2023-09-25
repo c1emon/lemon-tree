@@ -1,4 +1,4 @@
-package oidc
+package oidcx
 
 import (
 	"time"
@@ -30,6 +30,10 @@ type AuthRequest struct {
 
 	done     bool
 	authTime time.Time
+}
+
+type AuthRequestCacher interface {
+	Get(string) *AuthRequest
 }
 
 func (ar *AuthRequest) SetID(id string) {

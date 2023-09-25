@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"github.com/c1emon/lemontree/internal/service"
+	"github.com/c1emon/lemontree/internal/org"
 	"github.com/c1emon/lemontree/pkg/httpx"
 	"github.com/gin-gonic/gin"
 )
 
 type OrganizationController struct {
-	service service.OrganizationService
+	service org.OrganizationService
 }
 
 func (s *OrganizationController) Create(c *gin.Context) {

@@ -14,6 +14,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/zitadel/oidc/v2 v2.11.0
 	golang.org/x/crypto v0.13.0
+	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/driver/sqlite v1.5.3
@@ -43,7 +44,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/gorilla/mux v1.8.0 // indirect
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -75,6 +76,7 @@ require (
 	golang.org/x/arch v0.5.0 // indirect
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
+	golang.org/x/sync v0.3.0
 	golang.org/x/sys v0.12.0 // indirect
 	golang.org/x/text v0.13.0
 	google.golang.org/appengine v1.6.7 // indirect

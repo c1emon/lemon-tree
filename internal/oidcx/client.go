@@ -1,4 +1,4 @@
-package oidc
+package oidcx
 
 import (
 	"time"
@@ -28,6 +28,12 @@ type Client struct {
 	clockSkew                      time.Duration
 	postLogoutRedirectURIGlobs     []string
 	redirectURIGlobs               []string
+	OrganizationId                 string `json:"oid"`
+}
+
+type OidcClientRepository interface {
+	gormx.BaseRepository[Client]
+	FindByOidAndName(string, string) *Client
 }
 
 // AccessTokenType implements op.Client.
