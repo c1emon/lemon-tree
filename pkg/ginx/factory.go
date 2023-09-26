@@ -13,7 +13,8 @@ var once = &sync.Once{}
 func SingletonGinFactory() *gin.Engine {
 
 	once.Do(func() {
-
+		mode := gin.DebugMode
+		gin.SetMode(mode)
 		g := gin.New()
 
 		g.Use(LogrusLogger(logx.GetLogger()), ErrorHandler(), Recovery(logx.GetLogger()))

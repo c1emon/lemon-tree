@@ -10,42 +10,36 @@ import (
 )
 
 func NewUserService() *UserService {
-	repo := &gormUserRepository{
+	userRepo := &gormUserRepository{
 		db: persister.GetDB(),
 	}
-	repo.InitDB()
-	return &UserService{repository: repo}
+	userRepo.InitDB()
+
+	userIdRepo := &gormUserIdentityRepository{
+		db: persister.GetDB(),
+	}
+	userIdRepo.InitDB()
+
+	return &UserService{userRepo: userRepo, userIdRepo: userIdRepo}
 }
 
 type UserService struct {
-	repository UserRepository
+	userRepo   UserRepository
+	userIdRepo UserIdentityRepository
 }
 
 func (s *UserService) CreateUser(ctx context.Context, u *User) {
-	err := s.repository.CreateOne(ctx, u)
+	err := s.userRepo.CreateOne(ctx, u)
 	if err != nil {
 		logx.GetLogger().Errorf("failed create user, %s", err)
 	}
 }
 
 func (s *UserService) FindByOidAndName(oid string, name string) (*User, error) {
-	return s.repository.FindByOidAndName(oid, name)
+	return s.userRepo.FindByOidAndName(oid, name)
 }
 
-func NewUserIdentityService() *UserIdentityService {
-	repo := &gormUserIdentityRepository{
-		db: persister.GetDB(),
-	}
-	repo.InitDB()
-	return &UserIdentityService{repository: repo, userSvc: nil}
-}
-
-type UserIdentityService struct {
-	repository UserIdentityRepository
-	userSvc    *UserService
-}
-
-func (s *UserIdentityService) CreateIdentity(ctx context.Context, oid, uid, idpId string, identityParam map[string]string) {
+func (s *UserService) CreateIdentity(ctx context.Context, oid, uid, idpId string, identityParam map[string]string) {
 	i, _ := json.Marshal(identityParam)
 	identity := &UserIdentity{
 		Uid:      uid,
@@ -54,15 +48,15 @@ func (s *UserIdentityService) CreateIdentity(ctx context.Context, oid, uid, idpI
 		Identity: i,
 	}
 
-	err := s.repository.CreateOne(ctx, identity)
+	err := s.userIdRepo.CreateOne(ctx, identity)
 	if err != nil {
 		logx.GetLogger().Errorf("failed create identity, %s", err)
 	}
 }
 
-func (s *UserIdentityService) Validate(ctx context.Context, oid string, builder func(*datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression) (string, bool) {
+func (s *UserService) Validate(ctx context.Context, oid string, builder func(*datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression) (string, bool) {
 
-	uid, err := s.repository.Validate(ctx, oid, builder)
+	uid, err := s.userIdRepo.Validate(ctx, oid, builder)
 	if err != nil {
 		return "", false
 	}

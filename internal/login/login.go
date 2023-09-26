@@ -10,14 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewLoginProvider() *LoginProvider {
+func NewLoginProvider(mgr *idp.IDPManager) *LoginProvider {
 	cbUrl := func(ctx context.Context, id string) string {
 		return "https://baidu.com"
 	}
 
 	return &LoginProvider{
 		authCallbackUrl: cbUrl,
-		manager:         idp.NewIDPManager(),
+		manager:         mgr,
 	}
 }
 

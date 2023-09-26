@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/c1emon/lemontree/internal/factory"
 	"github.com/c1emon/lemontree/internal/user"
 	"github.com/c1emon/lemontree/pkg/errorx"
 	"github.com/c1emon/lemontree/pkg/gormx"
@@ -71,26 +70,22 @@ func (r *gormIdentityProviderConfigRepository) UpdateOneById(context.Context, st
 	panic("unimplemented")
 }
 
-func NewIDPManager() *IDPManager {
+func NewIDPManager(userSvc *user.UserService) *IDPManager {
 
 	repo := &gormIdentityProviderConfigRepository{
 		db: persister.GetDB(),
 	}
 	repo.InitDB()
 
-	// factory.GetUserIdentityService().CreateIdentity(context.Background(), "clcgbaky00000ze5jztbggr8b", "clmxikwmv00004xcsbxqyjqvy", "clmx6wf660000nzcslmr2aira", map[string]string{"username": "clemon", "passwd": "cjw7360"})
-
 	return &IDPManager{
 		idpConfigRepository: repo,
-		userService:         factory.GetUserService(),
-		identityService:     factory.GetUserIdentityService(),
+		userService:         userSvc,
 	}
 }
 
 type IDPManager struct {
 	idpConfigRepository identityProviderConfigRepository
 	userService         *user.UserService
-	identityService     *user.UserIdentityService
 }
 
 func (m *IDPManager) FindById(ctx context.Context, id string) (IDProvider, error) {
@@ -102,7 +97,7 @@ func (m *IDPManager) FindById(ctx context.Context, id string) (IDProvider, error
 
 	switch conf.ProviderType {
 	case "password":
-		return NewPasswdIDP(m.userService, m.identityService, nil), nil
+		return NewPasswdIDP(m.userService, nil), nil
 	}
 
 	return nil, nil

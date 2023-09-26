@@ -55,6 +55,8 @@ func (s *HttpServer) Run(ctx context.Context) error {
 
 	}()
 
+	RegRouter()
+
 	// start server here
 	if err := srv.ListenAndServe(); err != nil {
 		if errors.Is(err, http.ErrServerClosed) {
