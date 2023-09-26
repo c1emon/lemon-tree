@@ -1,11 +1,13 @@
 package setting
 
-func New() *Config {
+func New(httpPort int, dbDrv, dbSource string) *Config {
 	return &Config{
-		Http: HttpConfig{Port: 8080},
+		Http: HttpCfg{Port: httpPort},
+		DB:   DBCfg{Driver: dbDrv, Source: dbSource},
 	}
 }
 
 type Config struct {
-	Http HttpConfig
+	Http HttpCfg
+	DB   DBCfg
 }

@@ -1,5 +1,5 @@
 package setting
 
-type HttpConfig struct {
+type HttpCfg struct {
 	Port int
 }

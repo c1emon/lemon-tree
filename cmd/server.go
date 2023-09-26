@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/c1emon/lemontree/config"
 	"github.com/c1emon/lemontree/internal/server"
+	"github.com/c1emon/lemontree/internal/setting"
 	"github.com/c1emon/lemontree/pkg/logx"
 	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/spf13/cobra"
@@ -52,14 +52,16 @@ var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "start lemon tree server",
 	Run: func(cmd *cobra.Command, args []string) {
-		config.SetConfig(port, dbDriverName, dbSourceName)
+
 		defer func() {
 			if err := persister.DisConnect(); err != nil {
 				logx.GetLogger().Warnf("unable close db: %s", err)
 			}
 		}()
 
-		s, _ := server.Initialize()
+		cfg := setting.New(port, dbDriverName, dbSourceName)
+		persister.Initialize(cfg.DB.Driver, cfg.DB.Source)
+		s, _ := server.Initialize(cfg)
 		go listenToSystemSignals(context.Background(), s)
 		s.Run()
 	},

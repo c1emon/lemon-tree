@@ -12,6 +12,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+func Initialize(cfg *setting.Config) (*Server, error) {
+	srv, _ := ProvideHttpServer(cfg)
+	return New(cfg, srv)
+}
+
 // from https://github.com/grafana/grafana/blob/4cc72a22ad03132295ab3428ed9877ba2cb42eb2/pkg/server/server.go
 func New(cfg *setting.Config, httpSrv *HttpServer) (*Server, error) {
 	s, err := newServer(cfg, httpSrv)

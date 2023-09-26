@@ -4,7 +4,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/c1emon/lemontree/config"
 	"github.com/c1emon/lemontree/pkg/logx"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/mysql"
@@ -15,6 +14,8 @@ import (
 
 var once = sync.Once{}
 var DB *gorm.DB
+var drv string
+var src string
 
 type DriverType int
 
@@ -38,6 +39,11 @@ func (d DriverType) String() string {
 	}
 }
 
+func Initialize(dbDrv, dbSrc string) {
+	drv = dbDrv
+	src = dbSrc
+}
+
 func ParseDriverType(dt string) DriverType {
 	switch strings.ToLower(dt) {
 	case "postgres":
@@ -51,7 +57,7 @@ func ParseDriverType(dt string) DriverType {
 	}
 }
 
-func Connect(driverName DriverType, dsn string) {
+func connect(driverName DriverType, dsn string) {
 	var dialector gorm.Dialector
 	switch driverName {
 	case Postgres:
@@ -77,8 +83,8 @@ func Connect(driverName DriverType, dsn string) {
 func GetDB() *gorm.DB {
 
 	once.Do(func() {
-		c := config.GetConfig()
-		Connect(ParseDriverType(c.DbDriver), c.DbSource)
+
+		connect(ParseDriverType(drv), src)
 	})
 
 	return DB
