@@ -72,7 +72,7 @@ func (r *gormIdentityProviderConfigRepository) UpdateOneById(context.Context, st
 func NewIDPManager(userSvc *user.UserService) *IDPManager {
 
 	repo := &gormIdentityProviderConfigRepository{
-		db: gormx.GetDB(),
+		db: gormx.GetGormDB(),
 	}
 	repo.InitDB()
 

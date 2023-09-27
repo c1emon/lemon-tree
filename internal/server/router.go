@@ -8,7 +8,7 @@ import (
 )
 
 func RegRouter() {
-	eng := ginx.GetGinEngine()
+	eng := ginx.GetGinEng()
 	userSvc := user.NewUserService()
 	idpMgr := idp.NewIDPManager(userSvc)
 	loginHandler := login.NewLoginProvider(idpMgr)

@@ -81,7 +81,7 @@ func connect(driverName DriverType, dsn string) {
 	gormInstance = db
 }
 
-func GetDB() *gorm.DB {
+func GetGormDB() *gorm.DB {
 
 	once.Do(func() {
 

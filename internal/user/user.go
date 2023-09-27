@@ -11,12 +11,12 @@ import (
 
 func NewUserService() *UserService {
 	userRepo := &gormUserRepository{
-		db: gormx.GetDB(),
+		db: gormx.GetGormDB(),
 	}
 	userRepo.InitDB()
 
 	userIdRepo := &gormUserIdentityRepository{
-		db: gormx.GetDB(),
+		db: gormx.GetGormDB(),
 	}
 	userIdRepo.InitDB()
 

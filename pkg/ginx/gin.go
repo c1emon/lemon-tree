@@ -10,7 +10,7 @@ import (
 var e *gin.Engine
 var once = &sync.Once{}
 
-func SingletonGinFactory() *gin.Engine {
+func singletonGinFactory() *gin.Engine {
 
 	once.Do(func() {
 		mode := gin.DebugMode
@@ -25,12 +25,6 @@ func SingletonGinFactory() *gin.Engine {
 	return e
 }
 
-func GetGinEngine() *gin.Engine {
-	return SingletonGinFactory()
+func GetGinEng() *gin.Engine {
+	return singletonGinFactory()
 }
-
-// TODO: split
-//type GinMiddleware interface {
-//	HandleRequest()
-//	HandleResponse()
-//}

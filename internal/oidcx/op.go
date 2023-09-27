@@ -53,7 +53,7 @@ func SetupServer(issuer string, storage *Storage, extraOptions ...op.Option) *mu
 	// if your issuer ends with a path (e.g. http://localhost:9998/custom/path/),
 	// then you would have to set the path prefix (/custom/path/)
 
-	ginx.GetGinEngine()
+	ginx.GetGinEng()
 
 	gin.WrapH(provider.HttpHandler())
 

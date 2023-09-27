@@ -10,7 +10,7 @@ import (
 
 func NewOrganizationService() *OrganizationService {
 	repo := &gormOrganizationRepository{
-		db: gormx.GetDB(),
+		db: gormx.GetGormDB(),
 	}
 	repo.InitDB()
 	return &OrganizationService{repository: repo}

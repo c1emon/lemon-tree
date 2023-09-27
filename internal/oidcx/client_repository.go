@@ -25,7 +25,7 @@ type GormClientRepository struct {
 
 func NewGormClientRepository() *GormClientRepository {
 	r := &GormClientRepository{
-		db: gormx.GetDB(),
+		db: gormx.GetGormDB(),
 	}
 	_ = r.InitDB()
 	return r

@@ -20,7 +20,7 @@ type gormOrganizationRepository struct {
 
 func NewGormOrganizationRepository() *gormOrganizationRepository {
 	r := &gormOrganizationRepository{
-		db: gormx.GetDB(),
+		db: gormx.GetGormDB(),
 	}
 	_ = r.InitDB()
 	return r

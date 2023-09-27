@@ -15,7 +15,7 @@ func SetPage(pageable httpx.Pageable) {
 
 func Test_DbCreate(t *testing.T) {
 	start()
-	r := ginx.GetGinEngine()
+	r := ginx.GetGinEng()
 
 	r.GET("/page", func(c *gin.Context) {
 		pagination := httpx.PaginationFromQuery(c.Request)
