@@ -55,9 +55,7 @@ var serverCmd = &cobra.Command{
 			}
 		}()
 
-		// cfg := setting.New(port, dbDriverName, dbSourceName)
 		cfg := setting.GetCfg()
-		logx.GetLogger().Infof("%v", cfg)
 
 		gormx.Initialize(cfg.DB.Driver, cfg.DB.Source)
 		s, _ := server.Initialize(cfg)
@@ -78,13 +76,4 @@ func init() {
 	serverCmd.PersistentFlags().StringVar(&cfg.DB.Source, "source", "host=10.10.0.70 port=5432 user=postgres dbname=lemon_tree password=123456", "db source")
 	viper.BindPFlag("source", serverCmd.PersistentFlags().Lookup("source"))
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// serverCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// serverCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
