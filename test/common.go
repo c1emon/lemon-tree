@@ -1,8 +1,8 @@
 package test
 
 import (
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/logx"
-	"github.com/c1emon/lemontree/pkg/persister"
 )
 
 func start() {
@@ -10,7 +10,7 @@ func start() {
 }
 
 func stop() {
-	if err := persister.DisConnect(); err != nil {
+	if err := gormx.DisConnect(); err != nil {
 		logx.GetLogger().Warnf("unable close db: %s", err)
 	}
 }

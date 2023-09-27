@@ -4,19 +4,19 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/logx"
-	"github.com/c1emon/lemontree/pkg/persister"
 	"gorm.io/datatypes"
 )
 
 func NewUserService() *UserService {
 	userRepo := &gormUserRepository{
-		db: persister.GetDB(),
+		db: gormx.GetDB(),
 	}
 	userRepo.InitDB()
 
 	userIdRepo := &gormUserIdentityRepository{
-		db: persister.GetDB(),
+		db: gormx.GetDB(),
 	}
 	userIdRepo.InitDB()
 

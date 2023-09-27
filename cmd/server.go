@@ -13,8 +13,8 @@ import (
 
 	"github.com/c1emon/lemontree/internal/server"
 	"github.com/c1emon/lemontree/internal/setting"
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/logx"
-	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -54,13 +54,13 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		defer func() {
-			if err := persister.DisConnect(); err != nil {
+			if err := gormx.DisConnect(); err != nil {
 				logx.GetLogger().Warnf("unable close db: %s", err)
 			}
 		}()
 
 		cfg := setting.New(port, dbDriverName, dbSourceName)
-		persister.Initialize(cfg.DB.Driver, cfg.DB.Source)
+		gormx.Initialize(cfg.DB.Driver, cfg.DB.Source)
 		s, _ := server.Initialize(cfg)
 		go listenToSystemSignals(context.Background(), s)
 		s.Run()

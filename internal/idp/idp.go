@@ -7,7 +7,6 @@ import (
 	"github.com/c1emon/lemontree/internal/user"
 	"github.com/c1emon/lemontree/pkg/errorx"
 	"github.com/c1emon/lemontree/pkg/gormx"
-	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/pkg/errors"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -73,7 +72,7 @@ func (r *gormIdentityProviderConfigRepository) UpdateOneById(context.Context, st
 func NewIDPManager(userSvc *user.UserService) *IDPManager {
 
 	repo := &gormIdentityProviderConfigRepository{
-		db: persister.GetDB(),
+		db: gormx.GetDB(),
 	}
 	repo.InitDB()
 

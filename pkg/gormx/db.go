@@ -1,4 +1,4 @@
-package persister
+package gormx
 
 import (
 	"strings"
@@ -13,7 +13,7 @@ import (
 )
 
 var once = sync.Once{}
-var DB *gorm.DB
+var gormInstance *gorm.DB
 var drv string
 var src string
 
@@ -70,6 +70,7 @@ func connect(driverName DriverType, dsn string) {
 	default:
 		logx.GetLogger().Panicf("unknown driver type: %s", driverName)
 	}
+
 	db, err := gorm.Open(dialector, &gorm.Config{
 		Logger: logx.GetGormLogrusLogger(),
 	})
@@ -77,7 +78,7 @@ func connect(driverName DriverType, dsn string) {
 	if err != nil {
 		logx.GetLogger().Panicf("unable connect to %s: %s", driverName, err)
 	}
-	DB = db
+	gormInstance = db
 }
 
 func GetDB() *gorm.DB {
@@ -87,12 +88,12 @@ func GetDB() *gorm.DB {
 		connect(ParseDriverType(drv), src)
 	})
 
-	return DB
+	return gormInstance
 }
 
 func DisConnect() error {
-	if DB != nil {
-		d, err := DB.DB()
+	if gormInstance != nil {
+		d, err := gormInstance.DB()
 		if err != nil {
 			return nil
 		}

@@ -7,7 +7,6 @@ import (
 	"github.com/c1emon/lemontree/pkg/errorx"
 	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/httpx"
-	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -21,7 +20,7 @@ type gormOrganizationRepository struct {
 
 func NewGormOrganizationRepository() *gormOrganizationRepository {
 	r := &gormOrganizationRepository{
-		db: persister.GetDB(),
+		db: gormx.GetDB(),
 	}
 	_ = r.InitDB()
 	return r

@@ -3,14 +3,14 @@ package org
 import (
 	"context"
 
+	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/c1emon/lemontree/pkg/httpx"
-	"github.com/c1emon/lemontree/pkg/persister"
 	"github.com/pkg/errors"
 )
 
 func NewOrganizationService() *OrganizationService {
 	repo := &gormOrganizationRepository{
-		db: persister.GetDB(),
+		db: gormx.GetDB(),
 	}
 	repo.InitDB()
 	return &OrganizationService{repository: repo}
