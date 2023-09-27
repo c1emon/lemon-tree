@@ -19,10 +19,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var port int
-var dbDriverName string
-var dbSourceName string
-
 func listenToSystemSignals(ctx context.Context, s *server.Server) {
 	signalChan := make(chan os.Signal, 1)
 	sighupChan := make(chan os.Signal, 1)
@@ -59,7 +55,10 @@ var serverCmd = &cobra.Command{
 			}
 		}()
 
-		cfg := setting.New(port, dbDriverName, dbSourceName)
+		// cfg := setting.New(port, dbDriverName, dbSourceName)
+		cfg := setting.GetCfg()
+		logx.GetLogger().Infof("%v", cfg)
+
 		gormx.Initialize(cfg.DB.Driver, cfg.DB.Source)
 		s, _ := server.Initialize(cfg)
 		go listenToSystemSignals(context.Background(), s)
@@ -69,13 +68,14 @@ var serverCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
-	serverCmd.PersistentFlags().IntVarP(&port, "port", "p", 8080, "server port")
+	cfg := setting.GetCfg()
+	serverCmd.PersistentFlags().IntVarP(&cfg.Http.Port, "port", "p", 8080, "server port")
 	viper.BindPFlag("port", serverCmd.PersistentFlags().Lookup("port"))
 
-	serverCmd.PersistentFlags().StringVar(&dbDriverName, "driver", "postgres", "db driver name")
+	serverCmd.PersistentFlags().StringVar(&cfg.DB.Driver, "driver", "postgres", "db driver name")
 	viper.BindPFlag("driver", serverCmd.PersistentFlags().Lookup("driver"))
 
-	serverCmd.PersistentFlags().StringVar(&dbSourceName, "source", "host=10.10.0.70 port=5432 user=postgres dbname=lemon_tree password=123456", "db source")
+	serverCmd.PersistentFlags().StringVar(&cfg.DB.Source, "source", "host=10.10.0.70 port=5432 user=postgres dbname=lemon_tree password=123456", "db source")
 	viper.BindPFlag("source", serverCmd.PersistentFlags().Lookup("source"))
 
 	// Here you will define your flags and configuration settings.

@@ -1,13 +1,23 @@
 package setting
 
-func New(httpPort int, dbDrv, dbSource string) *Config {
-	return &Config{
-		Http: HttpCfg{Port: httpPort},
-		DB:   DBCfg{Driver: dbDrv, Source: dbSource},
-	}
-}
+import "sync"
+
+var cfgInstance *Config
+var cfgOnce = sync.Once{}
 
 type Config struct {
-	Http HttpCfg
-	DB   DBCfg
+	File  string
+	LogLv string
+	Http  HttpCfg
+	DB    DBCfg
+}
+
+func GetCfg() *Config {
+	cfgOnce.Do(func() {
+		cfgInstance = &Config{
+			Http: HttpCfg{},
+			DB:   DBCfg{},
+		}
+	})
+	return cfgInstance
 }

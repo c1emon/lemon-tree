@@ -25,14 +25,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/c1emon/lemontree/internal/setting"
 	"github.com/c1emon/lemontree/pkg/logx"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var cfgFile string
-var logLevel string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -47,7 +45,8 @@ to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		logx.Init(logLevel)
+		cfg := setting.GetCfg()
+		logx.Init(cfg.LogLv)
 	},
 }
 
@@ -66,17 +65,18 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lemontree.yaml)")
-	rootCmd.PersistentFlags().StringVar(&logLevel, "log", "info", "log level")
+	cfg := setting.GetCfg()
+	rootCmd.PersistentFlags().StringVar(&cfg.File, "config", "", "config file (default is $HOME/.lemontree.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfg.LogLv, "log", "info", "log level")
 	viper.BindPFlag("log", rootCmd.PersistentFlags().Lookup("log"))
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
+	cfg := setting.GetCfg()
+	if cfg.File != "" {
 		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
+		viper.SetConfigFile(cfg.File)
 	} else {
 		// Find home directory.
 		home, err := os.UserHomeDir()

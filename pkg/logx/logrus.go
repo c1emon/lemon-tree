@@ -3,6 +3,7 @@ package logx
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/c1emon/lemontree/pkg/util"
@@ -11,10 +12,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var logger = logrus.New()
+var once = sync.Once{}
+var loggerInstance *logrus.Logger
 
 func GetLogger() *logrus.Logger {
-	return logger
+	once.Do(func() {
+		loggerInstance = logrus.New()
+	})
+	return loggerInstance
 }
 
 var cstZone = time.FixedZone("GMT", 8*3600)
@@ -57,11 +62,12 @@ func (s *costumeLogFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 }
 
 func Init(level string) {
+	logger := GetLogger()
 	lv, err := logrus.ParseLevel(level)
 	if err != nil {
 		logger.Fatal(err)
 	}
 	logger.SetFormatter(new(costumeLogFormatter))
 	logger.SetLevel(lv)
-	logger.Info(fmt.Sprintf("log level: %s", logrus.GetLevel().String()))
+	logger.Info(fmt.Sprintf("log level: %s", logger.GetLevel().String()))
 }
