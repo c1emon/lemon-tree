@@ -39,6 +39,10 @@ func (s *UserService) FindByOidAndName(oid string, name string) (*User, error) {
 	return s.userRepo.FindByOidAndName(oid, name)
 }
 
+func (s *UserService) FindUser(ctx context.Context, id string) (*User, error) {
+	return s.userRepo.GetOneById(ctx, id)
+}
+
 func (s *UserService) CreateIdentity(ctx context.Context, oid, uid, idpId string, identityParam map[string]string) {
 	i, _ := json.Marshal(identityParam)
 	identity := &UserIdentity{
@@ -54,7 +58,7 @@ func (s *UserService) CreateIdentity(ctx context.Context, oid, uid, idpId string
 	}
 }
 
-func (s *UserService) Validate(ctx context.Context, oid string, builder func(*datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression) (string, bool) {
+func (s *UserService) Validate(ctx context.Context, oid string, builder func(builder func() *datatypes.JSONQueryExpression) []any) (string, bool) {
 
 	uid, err := s.userIdRepo.Validate(ctx, oid, builder)
 	if err != nil {

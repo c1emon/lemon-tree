@@ -96,8 +96,9 @@ func (m *IDPManager) FindById(ctx context.Context, id string) (IDProvider, error
 
 	switch conf.ProviderType {
 	case "password":
-		return NewPasswdIDP(m.userService, nil), nil
+		return NewPasswdIDP(m.userService), nil
+	default:
+		return nil, fmt.Errorf("no such idp %s", conf.ProviderType)
 	}
 
-	return nil, nil
 }

@@ -38,8 +38,11 @@ func (r *gormUserRepository) FindByOidAndName(string, string) (*User, error) {
 }
 
 // GetOneById implements UserRepository.
-func (r *gormUserRepository) GetOneById(context.Context, string) (*User, error) {
-	panic("unimplemented")
+func (r *gormUserRepository) GetOneById(ctx context.Context, id string) (*User, error) {
+	user := &User{}
+	user.Id = id
+	res := r.db.WithContext(ctx).First(user)
+	return user, errors.Wrap(errorx.From(res.Error), fmt.Sprintf("id %s", id))
 }
 
 // InitDB implements UserRepository.

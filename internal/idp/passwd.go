@@ -3,6 +3,7 @@ package idp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/c1emon/lemontree/internal/user"
 	"github.com/c1emon/lemontree/pkg/logx"
@@ -11,13 +12,11 @@ import (
 
 var _ IDProvider = &PasswdIDP{}
 
-// var _ user.ValidaterBuilder = &PasswdIDP{}
-
 type PasswdIDP struct {
 	userService *user.UserService
 }
 
-func NewPasswdIDP(userSvc *user.UserService, config any) *PasswdIDP {
+func NewPasswdIDP(userSvc *user.UserService) *PasswdIDP {
 	// user idps
 	return &PasswdIDP{
 		userService: userSvc,
@@ -42,18 +41,18 @@ func (p *PasswdIDP) GetUser(ctx context.Context, data any) (*user.User, error) {
 	}
 	param.Oid = "clcgbaky00000ze5jztbggr8b"
 
-	uid, ok := p.userService.Validate(ctx, param.Oid, func() func(*datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression {
-
-		return func(builder *datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression {
-
-			return builder.Equals("username", param.Username)
-		}
-	}())
+	uid, ok := p.userService.Validate(ctx, param.Oid, func(builder func() *datatypes.JSONQueryExpression) []any {
+		var exps []any
+		exps = append(exps, builder().Equals(param.Username, "username"))
+		exps = append(exps, builder().Equals(param.Passwd, "passwd"))
+		return exps
+	})
 	if !ok {
 		logx.GetLogger().Infof("login fail for %s", param.Username)
+		return nil, fmt.Errorf("login fail for %s", param.Username)
 	}
 
 	logx.GetLogger().Infof("login success for %s", uid)
 
-	return nil, nil
+	return p.userService.FindUser(ctx, uid)
 }

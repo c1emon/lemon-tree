@@ -18,15 +18,16 @@ type gormUserIdentityRepository struct {
 }
 
 // Validate implements UserIdentityRepository.
-func (r *gormUserIdentityRepository) Validate(ctx context.Context, oid string, builder func(*datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression) (string, error) {
+func (r *gormUserIdentityRepository) Validate(ctx context.Context, oid string, builder func(builder func() *datatypes.JSONQueryExpression) []any) (string, error) {
 	identity := &UserIdentity{}
 	identity.Oid = oid
 
-	var conds []any
-	conds = append(conds, builder(datatypes.JSONQuery("identity")))
-	conds = append(conds, datatypes.JSONQuery("identity").Equals("cjw", "passwd"))
-	res := r.db.First(identity, conds...)
-	return identity.Uid, errors.Wrap(errorx.From(res.Error), fmt.Sprintf("name"))
+	jsonConds := builder(func() *datatypes.JSONQueryExpression {
+		return datatypes.JSONQuery("identity")
+	})
+
+	res := r.db.First(identity, jsonConds...)
+	return identity.Uid, errorx.From(res.Error)
 }
 
 // CreateOne implements UserIdentityRepository.

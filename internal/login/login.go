@@ -7,6 +7,7 @@ import (
 
 	"github.com/c1emon/lemontree/internal/idp"
 	"github.com/c1emon/lemontree/pkg/httpx"
+	"github.com/c1emon/lemontree/pkg/logx"
 	"github.com/gin-gonic/gin"
 )
 
@@ -56,13 +57,17 @@ func (p *LoginProvider) LoginHandler(c *gin.Context) {
 	// check
 	provider, err := p.manager.FindById(c, param.ProviderId)
 	if err != nil {
-
+		c.JSON(200, httpx.NewResponse(1).WithData("no such idp"))
+		return
 	}
 
-	_, err = provider.GetUser(c, param.Param)
+	user, err := provider.GetUser(c, param.Param)
 	if err != nil {
-
+		c.JSON(200, httpx.NewResponse(1).WithData("no such user"))
+		return
 	}
+
+	logx.GetLogger().Infof("login success for %s", user.Name)
 
 	if param.Redirect {
 		c.Redirect(http.StatusFound, p.authCallbackUrl(c, "ctx.Id"))

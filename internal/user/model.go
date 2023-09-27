@@ -38,5 +38,5 @@ func (UserIdentity) TableName() string {
 type UserIdentityRepository interface {
 	gormx.BaseRepository[UserIdentity]
 	FindByUidAndIdpId(context.Context, string, string) (*UserIdentity, error)
-	Validate(context.Context, string, func(*datatypes.JSONQueryExpression) *datatypes.JSONQueryExpression) (string, error)
+	Validate(context.Context, string, func(builder func() *datatypes.JSONQueryExpression) []any) (string, error)
 }
