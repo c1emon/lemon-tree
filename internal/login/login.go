@@ -1,7 +1,6 @@
 package login
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -11,21 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewLoginProvider(mgr *idp.IDPManager) *LoginProvider {
-	cbUrl := func(ctx context.Context, id string) string {
-		return "https://baidu.com"
-	}
+func NewLoginProvider(mgr *idp.IDPManager, successCbProvider func(*gin.Context, string) string) *LoginProvider {
 
 	return &LoginProvider{
-		authCallbackUrl: cbUrl,
-		manager:         mgr,
+		authCallbackProvider: successCbProvider,
+		manager:              mgr,
 	}
 }
 
 type LoginProvider struct {
-	authCallbackUrl func(context.Context, string) string
-	manager         *idp.IDPManager
-	// issuerInterceptor op.IssuerInterceptor
+	authCallbackProvider func(*gin.Context, string) string
+	manager              *idp.IDPManager
 }
 
 func AuthInterceptor() gin.HandlerFunc {
@@ -43,8 +38,7 @@ func AuthInterceptor() gin.HandlerFunc {
 func (p *LoginProvider) LoginHandler(c *gin.Context) {
 
 	param := &struct {
-		// Id         string          `json:"id,omitempty"`
-		// AuthReqId  string          `json:"auth_req_id"`
+		Id         string          `json:"id"`
 		ProviderId string          `json:"provider_id"`
 		Redirect   bool            `json:"redirect,omitempty"`
 		Param      json.RawMessage `json:"param,omitempty"`
@@ -70,13 +64,13 @@ func (p *LoginProvider) LoginHandler(c *gin.Context) {
 	logx.GetLogger().Infof("login success for %s", user.Name)
 
 	if param.Redirect {
-		c.Redirect(http.StatusFound, p.authCallbackUrl(c, "ctx.Id"))
+		c.Redirect(http.StatusFound, p.authCallbackProvider(c, param.Id))
 		return
 	}
 
 	resp := &struct {
-		// Id          string `json:"id"`
 		RedirectUri string `json:"redirect_uri"`
-	}{RedirectUri: p.authCallbackUrl(c, "ctx.Id")}
+	}{RedirectUri: p.authCallbackProvider(c, param.Id)}
+
 	c.JSON(200, httpx.ResponseOK().WithData(resp))
 }

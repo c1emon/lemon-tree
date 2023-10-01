@@ -11,7 +11,7 @@ func RegRouter() {
 	eng := ginx.GetGinEng()
 	userSvc := user.NewUserService()
 	idpMgr := idp.NewIDPManager(userSvc)
-	loginHandler := login.NewLoginProvider(idpMgr)
+	loginHandler := login.NewLoginProvider(idpMgr, nil)
 
 	eng.POST("/login", loginHandler.LoginHandler)
 }

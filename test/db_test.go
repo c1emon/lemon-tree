@@ -1,32 +1,17 @@
 package test
 
 import (
-	"fmt"
+	"context"
 	"testing"
 
-	"github.com/c1emon/lemontree/pkg/ginx"
-	"github.com/c1emon/lemontree/pkg/httpx"
-	"github.com/gin-gonic/gin"
+	"github.com/c1emon/lemontree/internal/oidcx/client"
 )
 
-func SetPage(pageable httpx.Pageable) {
-	pageable.SetTotal(109)
-}
-
-func Test_DbCreate(t *testing.T) {
+func Test_ClientCreate(t *testing.T) {
 	start()
-	r := ginx.GetGinEng()
+	defer stop()
 
-	r.GET("/page", func(c *gin.Context) {
-		pagination := httpx.PaginationFromQuery(c.Request)
-		SetPage(pagination)
+	svc := client.NewOidcClientService()
+	svc.Create(context.Background())
 
-		c.JSON(200, httpx.ResponseOK().WithPagination(pagination))
-	})
-
-	r.Run(fmt.Sprintf(":8080"))
-
-}
-
-func Test_Sort(t *testing.T) {
 }

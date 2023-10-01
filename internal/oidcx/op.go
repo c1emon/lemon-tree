@@ -1,33 +1,31 @@
 package oidcx
 
 import (
+	"context"
 	"crypto/sha256"
-	"net/http"
 
-	"github.com/c1emon/lemontree/pkg/ginx"
 	"github.com/c1emon/lemontree/pkg/logx"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/mux"
 	"github.com/zitadel/oidc/v2/pkg/op"
 	"golang.org/x/text/language"
 )
 
-// SetupServer creates an OIDC server with Issuer=http://localhost:<port>
+// NewOidcProvider creates an OIDC server with Issuer=http://localhost:<port>
 // Use one of the pre-made clients in storage/clients.go or register a new one.
-func SetupServer(issuer string, storage *Storage, extraOptions ...op.Option) *mux.Router {
+func NewOidcProvider(issuer string, storage *Storage, extraOptions ...op.Option) gin.HandlerFunc {
 	// the OpenID Provider requires a 32-byte key for (token) encryption
 	// be sure to create a proper crypto random key and manage it securely!
 	key := sha256.Sum256([]byte("test"))
 
-	router := mux.NewRouter()
+	// router := mux.NewRouter()
 
 	// for simplicity, we provide a very small default page for users who have signed out
-	router.HandleFunc("/logged-out", func(w http.ResponseWriter, req *http.Request) {
-		_, err := w.Write([]byte("signed out successfully"))
-		if err != nil {
-			logx.GetLogger().Errorf("error serving logged out page: %v", err)
-		}
-	})
+	// router.HandleFunc("/logged-out", func(w http.ResponseWriter, req *http.Request) {
+	// 	_, err := w.Write([]byte("signed out successfully"))
+	// 	if err != nil {
+	// 		logx.GetLogger().Errorf("error serving logged out page: %v", err)
+	// 	}
+	// })
 
 	// creation of the OpenIDProvider with the just created in-memory Storage
 	provider, err := newOP(storage, issuer, key, extraOptions...)
@@ -53,11 +51,31 @@ func SetupServer(issuer string, storage *Storage, extraOptions ...op.Option) *mu
 	// if your issuer ends with a path (e.g. http://localhost:9998/custom/path/),
 	// then you would have to set the path prefix (/custom/path/)
 
-	ginx.GetGinEng()
+	return gin.WrapH(provider.HttpHandler())
+}
 
-	gin.WrapH(provider.HttpHandler())
+// just same as op.context.key
+type key int
 
-	return router
+const (
+	issuerKey key = 0
+)
+
+func IssuerInterceptor(issuerFromRequest op.IssuerFromRequest) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), issuerKey, issuerFromRequest(c.Request)))
+		// 请求前
+		c.Next()
+	}
+}
+
+func AuthCallbackURLWarp(o op.OpenIDProvider) func(*gin.Context, string) string {
+	raw_provider := op.AuthCallbackURL(o)
+	return func(c *gin.Context, requestID string) string {
+		return raw_provider(c.Request.Context(), requestID)
+	}
+
 }
 
 // newOP will create an OpenID Provider for localhost on a specified port with a given encryption key
@@ -95,6 +113,7 @@ func newOP(storage op.Storage, issuer string, key [32]byte, extraOptions ...op.O
 		// 	UserCode:     op.UserCodeBase20,
 		// },
 	}
+
 	handler, err := op.NewOpenIDProvider(issuer, config, storage,
 		append([]op.Option{
 			// we must explicitly allow the use of the http issuer

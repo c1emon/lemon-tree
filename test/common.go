@@ -7,6 +7,7 @@ import (
 
 func start() {
 	logx.Init("debug")
+	gormx.Initialize("postgres", "host=10.10.0.70 port=5432 user=postgres dbname=lemon_tree password=123456")
 }
 
 func stop() {

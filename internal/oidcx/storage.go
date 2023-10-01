@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/c1emon/lemontree/internal/oidcx/client"
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
 	"github.com/zitadel/oidc/v2/pkg/op"
@@ -83,11 +84,11 @@ type Storage struct {
 	authRequests  map[string]*AuthRequest
 	codes         map[string]string
 	tokens        map[string]*Token
-	clients       map[string]*Client
 	refreshTokens map[string]*RefreshToken
 	signingKey    signingKey
-	serviceUsers  map[string]*Client
+	serviceUsers  map[string]*client.Client
 	services      map[string]Service
+	clientSvc     *client.OidcClientService
 }
 
 func NewStorage() *Storage {
@@ -96,15 +97,16 @@ func NewStorage() *Storage {
 
 // ClientCredentials implements op.ClientCredentialsStorage.
 func (s *Storage) ClientCredentials(ctx context.Context, clientID string, clientSecret string) (op.Client, error) {
-	client, ok := s.serviceUsers[clientID]
-	if !ok {
-		return nil, errors.New("wrong service user or password")
-	}
-	if client.Secret != clientSecret {
+	c, err := s.clientSvc.GetById(clientID)
+	if err != nil {
 		return nil, errors.New("wrong service user or password")
 	}
 
-	return client, nil
+	if c.Secret != clientSecret {
+		return nil, errors.New("wrong service user or password")
+	}
+
+	return c.WarpToOidcClient(), nil
 }
 
 // ClientCredentialsTokenRequest implements op.ClientCredentialsStorage.
@@ -143,13 +145,13 @@ func (s *Storage) AuthRequestByID(ctx context.Context, id string) (op.AuthReques
 func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID string, clientSecret string) error {
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
-	client, ok := s.clients[clientID]
-	if !ok {
+	c, err := s.clientSvc.GetById(clientID)
+	if err != nil {
 		return fmt.Errorf("client not found")
 	}
 	// for this example we directly check the secret
 	// obviously you would not have the secret in plain text, but rather hashed and salted (e.g. using bcrypt)
-	if client.Secret != clientSecret {
+	if c.Secret != clientSecret {
 		return fmt.Errorf("invalid secret")
 	}
 	return nil
@@ -326,11 +328,12 @@ func (s *Storage) GetClientByClientID(ctx context.Context, clientID string) (op.
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
 
-	client, ok := s.clients[clientID]
-	if !ok {
+	c, err := s.clientSvc.GetById(clientID)
+
+	if err != nil {
 		return nil, fmt.Errorf("client not found")
 	}
-	return RedirectGlobsClient(client), nil
+	return client.RedirectGlobsClient(c), nil
 }
 
 // GetKeyByIDAndClientID implements op.Storage.
