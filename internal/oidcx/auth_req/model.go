@@ -1,4 +1,4 @@
-package oidcx
+package authreq
 
 import (
 	"time"
@@ -111,46 +111,4 @@ func (ar *AuthRequest) GetSubject() string {
 
 func (ar *AuthRequest) Done() bool {
 	return ar.Success
-}
-
-func PromptToInternal(oidcPrompt oidc.SpaceDelimitedArray) []string {
-	prompts := make([]string, len(oidcPrompt))
-	for _, oidcPrompt := range oidcPrompt {
-		switch oidcPrompt {
-		case oidc.PromptNone,
-			oidc.PromptLogin,
-			oidc.PromptConsent,
-			oidc.PromptSelectAccount:
-			prompts = append(prompts, oidcPrompt)
-		}
-	}
-	return prompts
-}
-
-func MaxAgeToInternal(maxAge *uint) *time.Duration {
-	if maxAge == nil {
-		return nil
-	}
-	dur := time.Duration(*maxAge) * time.Second
-	return &dur
-}
-
-func authRequestToInternal(authReq *oidc.AuthRequest, userID string) *AuthRequest {
-	return &AuthRequest{
-		ApplicationID: authReq.ClientID,
-		CallbackURI:   authReq.RedirectURI,
-		TransferState: authReq.State,
-		Prompt:        PromptToInternal(authReq.Prompt),
-		UiLocales:     authReq.UILocales,
-		LoginHint:     authReq.LoginHint,
-		MaxAuthAge:    MaxAgeToInternal(authReq.MaxAge),
-		UserID:        userID,
-		Scopes:        authReq.Scopes,
-		ResponseType:  authReq.ResponseType,
-		Nonce:         authReq.Nonce,
-		CodeChallenge: &OIDCCodeChallenge{
-			Challenge: authReq.CodeChallenge,
-			Method:    string(authReq.CodeChallengeMethod),
-		},
-	}
 }

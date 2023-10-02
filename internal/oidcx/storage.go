@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	authreq "github.com/c1emon/lemontree/internal/oidcx/auth_req"
 	"github.com/c1emon/lemontree/internal/oidcx/client"
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
@@ -81,14 +82,15 @@ type Service struct {
 }
 
 type Storage struct {
-	authRequests  map[string]*AuthRequest
 	codes         map[string]string
 	tokens        map[string]*Token
 	refreshTokens map[string]*RefreshToken
-	signingKey    signingKey
-	serviceUsers  map[string]*client.Client
-	services      map[string]Service
-	clientSvc     *client.OidcClientService
+
+	signingKey   signingKey
+	serviceUsers map[string]*client.Client
+	services     map[string]Service
+	clientSvc    *client.OidcClientService
+	authReqSvc   *authreq.AuthReqService
 }
 
 func NewStorage() *Storage {
@@ -134,11 +136,11 @@ func (s *Storage) AuthRequestByCode(ctx context.Context, code string) (op.AuthRe
 
 // AuthRequestByID implements op.Storage.
 func (s *Storage) AuthRequestByID(ctx context.Context, id string) (op.AuthRequest, error) {
-	request, ok := s.authRequests[id]
-	if !ok {
+	request, err := s.authReqSvc.GetAuthReq(id)
+	if err != nil {
 		return nil, fmt.Errorf("request not found")
 	}
-	return request, nil
+	return &request, nil
 }
 
 // AuthorizeClientIDSecret implements op.Storage.
@@ -225,7 +227,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 	var authTime time.Time
 	var amr []string
 	switch req := request.(type) {
-	case *AuthRequest:
+	case *authreq.AuthRequest:
 		applicationID = req.ApplicationID
 		authTime = req.AuthTime
 		amr = req.GetAMR()
@@ -270,7 +272,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest) (accessTokenID string, expiration time.Time, err error) {
 	var applicationID string
 	switch req := request.(type) {
-	case *AuthRequest:
+	case *authreq.AuthRequest:
 		// if authenticated for an app (auth code / implicit flow) we must save the client_id to the token
 		applicationID = req.ApplicationID
 	case op.TokenExchangeRequest:
@@ -296,22 +298,22 @@ func (s *Storage) CreateAuthRequest(ctx context.Context, authReq *oidc.AuthReque
 	}
 
 	// typically, you'll fill your storage / storage model with the information of the passed object
-	request := authRequestToInternal(authReq, userID)
+	request := authreq.AuthRequestToInternal(authReq, userID)
 
 	// 生成本次登陆请求的id
 	request.SetID(uuid.NewString())
 
 	fmt.Printf("create auth req: %s", request.GetID())
 	// and save it in your database (for demonstration purposed we will use a simple map)
-	s.authRequests[request.GetID()] = request
+	s.authReqSvc.SetAuthReq(request)
 
 	// finally, return the request (which implements the AuthRequest interface of the OP
-	return request, nil
+	return &request, nil
 }
 
 // DeleteAuthRequest implements op.Storage.
 func (s *Storage) DeleteAuthRequest(ctx context.Context, id string) error {
-	delete(s.authRequests, id)
+	s.authReqSvc.DelAuthReq(id)
 
 	for code, requestID := range s.codes {
 		if id == requestID {

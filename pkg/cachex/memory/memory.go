@@ -19,7 +19,7 @@ type MemoryCache struct {
 
 // Del implements cachex.Cacher.
 func (c *MemoryCache) Del(keys ...string) int {
-	panic("unimplemented")
+	return c.cache.Del(keys...)
 }
 
 // Get implements cachex.Cacher.
