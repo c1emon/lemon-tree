@@ -227,7 +227,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 	switch req := request.(type) {
 	case *AuthRequest:
 		applicationID = req.ApplicationID
-		authTime = req.authTime
+		authTime = req.AuthTime
 		amr = req.GetAMR()
 	case *RefreshTokenRequest:
 		applicationID = req.ApplicationID

@@ -3,8 +3,8 @@ package oidcx
 import (
 	"time"
 
-	"github.com/c1emon/lemontree/pkg/gormx"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
+	"github.com/zitadel/oidc/v2/pkg/op"
 	"golang.org/x/text/language"
 )
 
@@ -13,27 +13,25 @@ type OIDCCodeChallenge struct {
 	Method    string
 }
 
+// check
+var _ op.AuthRequest = &AuthRequest{}
+
 type AuthRequest struct {
-	gormx.BaseFields
-	ApplicationID string
-	CallbackURI   string
-	TransferState string
-	Prompt        []string
-	UiLocales     []language.Tag
-	LoginHint     string
-	MaxAuthAge    *time.Duration
-	UserID        string
-	Scopes        []string
-	ResponseType  oidc.ResponseType
-	Nonce         string
-	CodeChallenge *OIDCCodeChallenge
-
-	done     bool
-	authTime time.Time
-}
-
-type AuthRequestCacher interface {
-	Get(string) *AuthRequest
+	Id            string             `json:"id"`
+	ApplicationID string             `json:"app_id"`
+	CallbackURI   string             `json:"cb_uri"`
+	TransferState string             `json:"transfer_state"`
+	Prompt        []string           `json:"promot"`
+	UiLocales     []language.Tag     `json:"locales"`
+	LoginHint     string             `json:"login_hint"`
+	MaxAuthAge    *time.Duration     `json:"auth_age"`
+	UserID        string             `json:"uid"`
+	Scopes        []string           `json:"scopes"`
+	ResponseType  oidc.ResponseType  `json:"response_type"`
+	Nonce         string             `json:"nonce"`
+	CodeChallenge *OIDCCodeChallenge `json:"code_challenge"`
+	Success       bool               `json:"success"`
+	AuthTime      time.Time          `json:"auth_time"`
 }
 
 func (ar *AuthRequest) SetID(id string) {
@@ -50,7 +48,7 @@ func (ar *AuthRequest) GetACR() string {
 
 func (ar *AuthRequest) GetAMR() []string {
 	// this example only uses password for authentication
-	if ar.done {
+	if ar.Success {
 		return []string{"pwd"}
 	}
 	return nil
@@ -61,7 +59,7 @@ func (ar *AuthRequest) GetAudience() []string {
 }
 
 func (ar *AuthRequest) GetAuthTime() time.Time {
-	return ar.authTime
+	return ar.AuthTime
 }
 
 func (ar *AuthRequest) GetClientID() string {
@@ -112,7 +110,7 @@ func (ar *AuthRequest) GetSubject() string {
 }
 
 func (ar *AuthRequest) Done() bool {
-	return ar.done
+	return ar.Success
 }
 
 func PromptToInternal(oidcPrompt oidc.SpaceDelimitedArray) []string {
@@ -138,12 +136,7 @@ func MaxAgeToInternal(maxAge *uint) *time.Duration {
 }
 
 func authRequestToInternal(authReq *oidc.AuthRequest, userID string) *AuthRequest {
-	now := time.Now()
 	return &AuthRequest{
-		BaseFields: gormx.BaseFields{
-			CreateTime: now,
-			UpdateTime: now,
-		},
 		ApplicationID: authReq.ClientID,
 		CallbackURI:   authReq.RedirectURI,
 		TransferState: authReq.State,

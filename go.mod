@@ -22,6 +22,7 @@ require (
 )
 
 require (
+	github.com/fanjindong/go-cache v0.0.5 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/muhlemmer/gu v0.3.1 // indirect
