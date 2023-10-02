@@ -32,6 +32,7 @@ type AuthRequest struct {
 	CodeChallenge *OIDCCodeChallenge `json:"code_challenge"`
 	Success       bool               `json:"success"`
 	AuthTime      time.Time          `json:"auth_time"`
+	Code          string             `json:"code"`
 }
 
 func (ar *AuthRequest) SetID(id string) {

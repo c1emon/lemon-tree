@@ -27,7 +27,7 @@ func (s *Storage) accessToken(applicationID, refreshTokenID, subject string, aud
 	// defer s.lock.Unlock()
 
 	token := &Token{
-		ID:             uuid.NewString(),
+		Id:             uuid.NewString(),
 		ApplicationID:  applicationID,
 		RefreshTokenID: refreshTokenID,
 		Subject:        subject,
@@ -35,7 +35,7 @@ func (s *Storage) accessToken(applicationID, refreshTokenID, subject string, aud
 		Expiration:     time.Now().Add(5 * time.Minute),
 		Scopes:         scopes,
 	}
-	s.tokens[token.ID] = token
+	s.tokens[token.Id] = token
 	return token, nil
 }
 
@@ -82,7 +82,6 @@ type Service struct {
 }
 
 type Storage struct {
-	codes         map[string]string
 	tokens        map[string]*Token
 	refreshTokens map[string]*RefreshToken
 
@@ -91,6 +90,7 @@ type Storage struct {
 	services     map[string]Service
 	clientSvc    *client.OidcClientService
 	authReqSvc   *authreq.AuthReqService
+	authCodeSvc  *authreq.AuthCodeService
 }
 
 func NewStorage() *Storage {
@@ -127,8 +127,8 @@ func (s *Storage) ClientCredentialsTokenRequest(ctx context.Context, clientID st
 
 // AuthRequestByCode implements op.Storage.
 func (s *Storage) AuthRequestByCode(ctx context.Context, code string) (op.AuthRequest, error) {
-	requestID, ok := s.codes[code]
-	if !ok {
+	requestID, err := s.authCodeSvc.GetIdByCode(code)
+	if err != nil {
 		return nil, fmt.Errorf("code invalid or expired")
 	}
 	return s.AuthRequestByID(ctx, requestID)
@@ -164,7 +164,7 @@ func (s *Storage) createRefreshToken(accessToken *Token, amr []string, authTime 
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
 	token := &RefreshToken{
-		ID:            accessToken.RefreshTokenID,
+		Id:            accessToken.RefreshTokenID,
 		Token:         accessToken.RefreshTokenID,
 		AuthTime:      authTime,
 		AMR:           amr,
@@ -174,7 +174,7 @@ func (s *Storage) createRefreshToken(accessToken *Token, amr []string, authTime 
 		Expiration:    time.Now().Add(5 * time.Hour),
 		Scopes:        accessToken.Scopes,
 	}
-	s.refreshTokens[token.ID] = token
+	s.refreshTokens[token.Id] = token
 	return token.Token, nil
 }
 
@@ -190,16 +190,16 @@ func (s *Storage) renewRefreshToken(currentRefreshToken string) (string, string,
 	delete(s.refreshTokens, currentRefreshToken)
 	for _, token := range s.tokens {
 		if token.RefreshTokenID == currentRefreshToken {
-			delete(s.tokens, token.ID)
+			delete(s.tokens, token.Id)
 			break
 		}
 	}
 	// creates a new refresh token based on the current one
 	token := uuid.NewString()
 	refreshToken.Token = token
-	refreshToken.ID = token
+	refreshToken.Id = token
 	s.refreshTokens[token] = refreshToken
-	return token, refreshToken.ID, nil
+	return token, refreshToken.Id, nil
 }
 
 // CreateAccessAndRefreshTokens implements op.Storage.
@@ -220,7 +220,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 			return "", "", time.Time{}, err
 		}
 
-		return accessToken.ID, refreshToken, accessToken.Expiration, nil
+		return accessToken.Id, refreshToken, accessToken.Expiration, nil
 	}
 
 	var applicationID string
@@ -252,7 +252,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 		if err != nil {
 			return "", "", time.Time{}, err
 		}
-		return accessToken.ID, refreshToken, accessToken.Expiration, nil
+		return accessToken.Id, refreshToken, accessToken.Expiration, nil
 	}
 
 	// if we get here, the currentRefreshToken was not empty, so the call is a refresh token request
@@ -265,7 +265,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 	if err != nil {
 		return "", "", time.Time{}, err
 	}
-	return accessToken.ID, refreshToken, accessToken.Expiration, nil
+	return accessToken.Id, refreshToken, accessToken.Expiration, nil
 }
 
 // CreateAccessToken implements op.Storage.
@@ -283,7 +283,7 @@ func (s *Storage) CreateAccessToken(ctx context.Context, request op.TokenRequest
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	return token.ID, token.Expiration, nil
+	return token.Id, token.Expiration, nil
 }
 
 // CreateAuthRequest implements op.Storage.
@@ -313,15 +313,8 @@ func (s *Storage) CreateAuthRequest(ctx context.Context, authReq *oidc.AuthReque
 
 // DeleteAuthRequest implements op.Storage.
 func (s *Storage) DeleteAuthRequest(ctx context.Context, id string) error {
+	s.authCodeSvc.DelById(id)
 	s.authReqSvc.DelAuthReq(id)
-
-	for code, requestID := range s.codes {
-		if id == requestID {
-			delete(s.codes, code)
-			break
-		}
-	}
-
 	return nil
 }
 
@@ -369,7 +362,7 @@ func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, toke
 	if !ok {
 		return "", "", op.ErrInvalidRefreshToken
 	}
-	return refreshToken.UserID, refreshToken.ID, nil
+	return refreshToken.UserID, refreshToken.Id, nil
 }
 
 // Health implements op.Storage.
@@ -392,7 +385,7 @@ func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID
 		}
 		// if it is an access token, just remove it
 		// you could also remove the corresponding refresh token if really necessary
-		delete(s.tokens, accessToken.ID)
+		delete(s.tokens, accessToken.Id)
 		return nil
 	}
 	refreshToken, ok := s.refreshTokens[tokenOrTokenID] // token
@@ -405,10 +398,10 @@ func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID
 		return oidc.ErrInvalidClient().WithDescription("token was not issued for this client")
 	}
 	// if it is a refresh token, you will have to remove the access token as well
-	delete(s.refreshTokens, refreshToken.ID)
+	delete(s.refreshTokens, refreshToken.Id)
 	for _, accessToken := range s.tokens {
-		if accessToken.RefreshTokenID == refreshToken.ID {
-			delete(s.tokens, accessToken.ID)
+		if accessToken.RefreshTokenID == refreshToken.Id {
+			delete(s.tokens, accessToken.Id)
 			return nil
 		}
 	}
@@ -417,7 +410,7 @@ func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID
 
 // SaveAuthCode implements op.Storage.
 func (s *Storage) SaveAuthCode(ctx context.Context, id string, code string) error {
-	s.codes[code] = id
+	s.authCodeSvc.Set(code, id)
 	return nil
 }
 
@@ -477,7 +470,7 @@ func (s *Storage) SigningKey(ctx context.Context) (op.SigningKey, error) {
 func (s *Storage) TerminateSession(ctx context.Context, userID string, clientID string) error {
 	for _, token := range s.tokens {
 		if token.ApplicationID == clientID && token.Subject == userID {
-			delete(s.tokens, token.ID)
+			delete(s.tokens, token.Id)
 			delete(s.refreshTokens, token.RefreshTokenID)
 		}
 	}

@@ -1,4 +1,4 @@
-package oidcx
+package token
 
 import (
 	"time"
@@ -6,8 +6,12 @@ import (
 	"github.com/zitadel/oidc/v2/pkg/op"
 )
 
+type Code struct {
+	Id string
+}
+
 type Token struct {
-	ID             string
+	Id             string
 	ApplicationID  string
 	Subject        string
 	RefreshTokenID string
@@ -17,13 +21,13 @@ type Token struct {
 }
 
 type RefreshToken struct {
-	ID            string
+	Id            string
+	ApplicationID string
 	Token         string
 	AuthTime      time.Time
 	AMR           []string
 	Audience      []string
 	UserID        string
-	ApplicationID string
 	Expiration    time.Time
 	Scopes        []string
 }
