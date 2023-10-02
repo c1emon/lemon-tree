@@ -32,6 +32,9 @@ type RefreshToken struct {
 	Scopes        []string
 }
 
+// check
+var _ op.RefreshTokenRequest = &RefreshTokenRequest{}
+
 // RefreshTokenRequestFromBusiness will simply wrap the storage RefreshToken to implement the op.RefreshTokenRequest interface
 func RefreshTokenRequestFromBusiness(token *RefreshToken) op.RefreshTokenRequest {
 	return &RefreshTokenRequest{token}

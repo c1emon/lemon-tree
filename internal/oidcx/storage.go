@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	authreq "github.com/c1emon/lemontree/internal/oidcx/auth_req"
+	authreq "github.com/c1emon/lemontree/internal/oidcx/authreq"
 	"github.com/c1emon/lemontree/internal/oidcx/client"
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
