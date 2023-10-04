@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	authreq "github.com/c1emon/lemontree/internal/oidcx/authreq"
+	"github.com/c1emon/lemontree/internal/oidcx/authreq"
 	"github.com/c1emon/lemontree/internal/oidcx/client"
+	"github.com/c1emon/lemontree/internal/oidcx/token"
 	"github.com/google/uuid"
 	"github.com/zitadel/oidc/v2/pkg/oidc"
 	"github.com/zitadel/oidc/v2/pkg/op"
@@ -82,8 +83,8 @@ type Service struct {
 }
 
 type Storage struct {
-	tokens        map[string]*Token
-	refreshTokens map[string]*RefreshToken
+	// tokens        map[string]*Token
+	// refreshTokens map[string]*RefreshToken
 
 	signingKey   signingKey
 	serviceUsers map[string]*client.Client
@@ -112,6 +113,7 @@ func (s *Storage) ClientCredentials(ctx context.Context, clientID string, client
 }
 
 // ClientCredentialsTokenRequest implements op.ClientCredentialsStorage.
+// 机密客户端使用 Client Credentials Grant
 func (s *Storage) ClientCredentialsTokenRequest(ctx context.Context, clientID string, scopes []string) (op.TokenRequest, error) {
 	client, ok := s.serviceUsers[clientID]
 	if !ok {
@@ -179,17 +181,17 @@ func (s *Storage) createRefreshToken(accessToken *Token, amr []string, authTime 
 }
 
 // renewRefreshToken checks the provided refresh_token and creates a new one based on the current
-func (s *Storage) renewRefreshToken(currentRefreshToken string) (string, string, error) {
+func (s *Storage) renewRefreshToken(currentRefreshTokenId string) (string, string, error) {
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
-	refreshToken, ok := s.refreshTokens[currentRefreshToken]
+	refreshToken, ok := s.refreshTokens[currentRefreshTokenId]
 	if !ok {
 		return "", "", fmt.Errorf("invalid refresh token")
 	}
 	// deletes the refresh token and all access tokens which were issued based on this refresh token
-	delete(s.refreshTokens, currentRefreshToken)
+	delete(s.refreshTokens, currentRefreshTokenId)
 	for _, token := range s.tokens {
-		if token.RefreshTokenID == currentRefreshToken {
+		if token.RefreshTokenID == currentRefreshTokenId {
 			delete(s.tokens, token.Id)
 			break
 		}
@@ -231,7 +233,7 @@ func (s *Storage) CreateAccessAndRefreshTokens(ctx context.Context, request op.T
 		applicationID = req.ApplicationID
 		authTime = req.AuthTime
 		amr = req.GetAMR()
-	case *RefreshTokenRequest:
+	case *token.RefreshTokenRequest:
 		applicationID = req.ApplicationID
 		authTime = req.AuthTime
 		amr = req.AMR
@@ -324,7 +326,6 @@ func (s *Storage) GetClientByClientID(ctx context.Context, clientID string) (op.
 	// defer s.lock.Unlock()
 
 	c, err := s.clientSvc.GetById(clientID)
-
 	if err != nil {
 		return nil, fmt.Errorf("client not found")
 	}
@@ -332,6 +333,7 @@ func (s *Storage) GetClientByClientID(ctx context.Context, clientID string) (op.
 }
 
 // GetKeyByIDAndClientID implements op.Storage.
+// 用来请求jwk进行验证?
 func (s *Storage) GetKeyByIDAndClientID(ctx context.Context, keyID string, clientID string) (*jose.JSONWebKey, error) {
 	service, ok := s.services[clientID]
 	if !ok {
@@ -357,8 +359,8 @@ func (s *Storage) GetPrivateClaimsFromScopes(ctx context.Context, userID string,
 }
 
 // GetRefreshTokenInfo implements op.Storage.
-func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, token string) (userID string, tokenID string, err error) {
-	refreshToken, ok := s.refreshTokens[token]
+func (s *Storage) GetRefreshTokenInfo(ctx context.Context, clientID string, id string) (userID string, tokenID string, err error) {
+	refreshToken, ok := s.refreshTokens[id]
 	if !ok {
 		return "", "", op.ErrInvalidRefreshToken
 	}
@@ -376,9 +378,9 @@ func (s *Storage) KeySet(ctx context.Context) ([]op.Key, error) {
 }
 
 // RevokeToken implements op.Storage.
-func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID string, clientID string) *oidc.Error {
+func (s *Storage) RevokeToken(ctx context.Context, id string, userID string, clientID string) *oidc.Error {
 
-	accessToken, ok := s.tokens[tokenOrTokenID] // tokenID
+	accessToken, ok := s.tokens[id] // tokenID
 	if ok {
 		if accessToken.ApplicationID != clientID {
 			return oidc.ErrInvalidClient().WithDescription("token was not issued for this client")
@@ -388,7 +390,7 @@ func (s *Storage) RevokeToken(ctx context.Context, tokenOrTokenID string, userID
 		delete(s.tokens, accessToken.Id)
 		return nil
 	}
-	refreshToken, ok := s.refreshTokens[tokenOrTokenID] // token
+	refreshToken, ok := s.refreshTokens[id] // token
 	if !ok {
 		// if the token is neither an access nor a refresh token, just ignore it, the expected behaviour of
 		// being not valid (anymore) is achieved
@@ -483,7 +485,7 @@ func (s *Storage) TokenRequestByRefreshToken(ctx context.Context, refreshToken s
 	if !ok {
 		return nil, fmt.Errorf("invalid refresh_token")
 	}
-	return RefreshTokenRequestFromBusiness(token), nil
+	return token.RefreshTokenRequestFromBusiness(token), nil
 }
 
 // ValidateJWTProfileScopes implements op.Storage.
