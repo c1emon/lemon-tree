@@ -23,11 +23,11 @@ var (
 )
 
 // accessToken will store an access_token in-memory based on the provided information
-func (s *Storage) accessToken(applicationID, refreshTokenID, subject string, audience, scopes []string) (*Token, error) {
+func (s *Storage) accessToken(applicationID, refreshTokenID, subject string, audience, scopes []string) (*token.Token, error) {
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
 
-	token := &Token{
+	token := &token.Token{
 		Id:             uuid.NewString(),
 		ApplicationID:  applicationID,
 		RefreshTokenID: refreshTokenID,
@@ -36,7 +36,7 @@ func (s *Storage) accessToken(applicationID, refreshTokenID, subject string, aud
 		Expiration:     time.Now().Add(5 * time.Minute),
 		Scopes:         scopes,
 	}
-	s.tokens[token.Id] = token
+	// s.tokens[token.Id] = token
 	return token, nil
 }
 
@@ -162,10 +162,10 @@ func (s *Storage) AuthorizeClientIDSecret(ctx context.Context, clientID string, 
 }
 
 // createRefreshToken will store a refresh_token in-memory based on the provided information
-func (s *Storage) createRefreshToken(accessToken *Token, amr []string, authTime time.Time) (string, error) {
+func (s *Storage) createRefreshToken(accessToken *token.Token, amr []string, authTime time.Time) (string, error) {
 	// s.lock.Lock()
 	// defer s.lock.Unlock()
-	token := &RefreshToken{
+	token := &token.RefreshToken{
 		Id:            accessToken.RefreshTokenID,
 		Token:         accessToken.RefreshTokenID,
 		AuthTime:      authTime,
@@ -176,7 +176,7 @@ func (s *Storage) createRefreshToken(accessToken *Token, amr []string, authTime 
 		Expiration:    time.Now().Add(5 * time.Hour),
 		Scopes:        accessToken.Scopes,
 	}
-	s.refreshTokens[token.Id] = token
+	// s.refreshTokens[token.Id] = token
 	return token.Token, nil
 }
 
