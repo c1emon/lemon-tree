@@ -83,8 +83,8 @@ type Service struct {
 }
 
 type Storage struct {
-	// tokens        map[string]*Token
-	// refreshTokens map[string]*RefreshToken
+	tokens        map[string]*token.Token
+	refreshTokens map[string]*token.RefreshToken
 
 	signingKey   signingKey
 	serviceUsers map[string]*client.Client
@@ -481,11 +481,11 @@ func (s *Storage) TerminateSession(ctx context.Context, userID string, clientID 
 
 // TokenRequestByRefreshToken implements op.Storage.
 func (s *Storage) TokenRequestByRefreshToken(ctx context.Context, refreshToken string) (op.RefreshTokenRequest, error) {
-	token, ok := s.refreshTokens[refreshToken]
+	t, ok := s.refreshTokens[refreshToken]
 	if !ok {
 		return nil, fmt.Errorf("invalid refresh_token")
 	}
-	return token.RefreshTokenRequestFromBusiness(token), nil
+	return token.RefreshTokenRequestFromBusiness(t), nil
 }
 
 // ValidateJWTProfileScopes implements op.Storage.
